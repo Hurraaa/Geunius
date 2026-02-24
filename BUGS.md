@@ -32,11 +32,20 @@ Aynı hataların tekrarlanmaması için referans olarak kullanılır.
 - **Dosya:** `src/game/Physics.js` → `reset()`
 - **Kural:** Matter.js internal dizilerini ASLA direkt değiştirme. Her zaman API metodlarını kullan (World.add, World.remove, Composite.*).
 
+## BUG-004: Compound body convex hull pet'e çarpıyor
+- **Tarih:** 2026-02-24
+- **Versiyon:** v0.4 → v0.5
+- **Belirti:** Düşman değmemesine rağmen oyuncu kaybediyor
+- **Sebep:** `Body.create({ parts: [...] })` kullanınca Matter.js tüm parçaların convex hull'ünü oluşturuyor. Örneğin "V" çizildiğinde aradaki boşluk da fiziksel gövde oluyordu. Bu görünmez gövde pet'e çarpıyordu.
+- **Çözüm:** Compound body KULLANMA. Her segmenti ayrı body olarak world'e ekle. `createDrawnBodies()` artık array döndürüyor.
+- **Dosya:** `src/game/Physics.js`, `src/game/Drawing.js`
+- **Kural:** Matter.js'te compound body (Body.create parts) KULLANMA. Her zaman ayrı body'ler kullan. Compound body görünmez convex hull oluşturur.
+
 ---
 
 ## Genel Kurallar (Tekrarlanmaması Gereken Hatalar)
 
-1. **Çizim gövdeleri statik olmalı** - Dinamik yapılırsa yerçekimi ile düşer, pet'i ezer
+1. **Compound body KULLANMA** - Convex hull görünmez çarpışma yaratır. Ayrı body'ler kullan
 2. **Vite base path relative olmalı** (`'./'`) - Absolute path deploy sorunlarına yol açar
 3. **Matter.js internal state'i direkt değiştirme** - Her zaman API kullan
 4. **Compound body convex hull'e dikkat** - Parts birleşince parent body büyük convex hull oluşturur, beklenmeyen çarpışmalara yol açabilir

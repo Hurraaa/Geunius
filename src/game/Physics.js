@@ -8,11 +8,11 @@ export class Physics {
     this.width = width;
     this.height = height;
 
-    // Matter.js engine - daha iyi çarpışma çözümlemesi
+    // Matter.js engine
     this.engine = Engine.create({
       gravity: { x: 0, y: 1 },
-      positionIterations: 10,  // default 6, daha hassas çarpışma
-      velocityIterations: 8,   // default 4, tunneling önleme
+      positionIterations: 10,
+      velocityIterations: 8,
     });
     this.world = this.engine.world;
 
@@ -31,7 +31,7 @@ export class Physics {
   }
 
   _createWalls() {
-    const t = 50; // wall thickness
+    const t = 50;
     const w = this.width;
     const h = this.height;
 
@@ -44,11 +44,8 @@ export class Physics {
     };
 
     this.walls = [
-      // floor
       Bodies.rectangle(w / 2, h + t / 2, w + t * 2, t, wallOptions),
-      // left wall
       Bodies.rectangle(-t / 2, h / 2, t, h, wallOptions),
-      // right wall
       Bodies.rectangle(w + t / 2, h / 2, t, h, wallOptions),
     ];
 
@@ -91,11 +88,10 @@ export class Physics {
   }
 
   /**
-   * Creates a physics body from drawn points.
-   * Dynamic body - falls with gravity, enemies push it.
-   * Thick segments with overlap to prevent tunneling.
+   * Creates individual segment bodies from drawn points.
+   * Returns ARRAY of bodies (compound body kullanmıyoruz - convex hull sorunu).
    */
-  createDrawnBody(points, thickness = 10) {
+  createDrawnBodies(points, thickness = 8) {
     if (points.length < 2) return null;
 
     const bodies = [];
@@ -111,34 +107,21 @@ export class Physics {
       const cx = (p1.x + p2.x) / 2;
       const cy = (p1.y + p2.y) / 2;
 
-      // Segment overlap artırıldı (len + 6) - boşluk bırakmaz
-      const segment = Bodies.rectangle(cx, cy, len + 6, thickness, {
+      const segment = Bodies.rectangle(cx, cy, len + 2, thickness, {
         angle,
-        collisionFilter: { category: this.categories.DRAWING },
+        density: 0.002,
         friction: 0.8,
         restitution: 0.1,
+        collisionFilter: { category: this.categories.DRAWING },
         label: 'drawing',
       });
       bodies.push(segment);
     }
 
-    if (bodies.length === 0) return null;
-
-    // Dynamic compound body - ağır, zor itilir
-    const compound = Body.create({
-      parts: bodies,
-      friction: 0.9,
-      restitution: 0.1,
-      density: 0.01, // yüksek yoğunluk = ağır = zor itilir
-      label: 'drawing',
-      collisionFilter: { category: this.categories.DRAWING },
-    });
-
-    return compound;
+    return bodies.length > 0 ? bodies : null;
   }
 
   reset() {
-    // Remove all bodies except walls
     const allBodies = Composite.allBodies(this.world);
     for (const body of allBodies) {
       if (body.label !== 'wall') {

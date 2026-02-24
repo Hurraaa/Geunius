@@ -11,7 +11,7 @@ export class Drawing {
     // Current drawing state
     this.isDrawing = false;
     this.currentPoints = [];
-    this.drawnBodies = []; // { body, points, inkUsed }
+    this.drawnBodies = []; // { bodies: [...], points, inkUsed }
 
     // Ink system
     this.maxInk = 500;
@@ -76,16 +76,13 @@ export class Drawing {
     const pos = this._getPos(e);
     const last = this.currentPoints[this.currentPoints.length - 1];
 
-    // Minimum distance between points
     const dx = pos.x - last.x;
     const dy = pos.y - last.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
 
     if (dist < 5) return;
 
-    // Check ink limit
     if (this.usedInk + dist > this.maxInk) {
-      // Use remaining ink
       const remaining = this.maxInk - this.usedInk;
       const ratio = remaining / dist;
       const clampedPos = {
@@ -113,12 +110,14 @@ export class Drawing {
       return;
     }
 
-    // Convert drawn points to physics body
-    const body = this.physics.createDrawnBody(this.currentPoints, this.lineWidth);
-    if (body) {
-      this.physics.addBody(body);
+    // Convert drawn points to individual segment bodies (no compound!)
+    const bodies = this.physics.createDrawnBodies(this.currentPoints, this.lineWidth);
+    if (bodies) {
+      for (const b of bodies) {
+        this.physics.addBody(b);
+      }
       this.drawnBodies.push({
-        body,
+        bodies,
         points: [...this.currentPoints],
         inkUsed: this._currentLineInk || 0,
       });
@@ -128,26 +127,26 @@ export class Drawing {
     this._currentLineInk = 0;
   }
 
-  /** Undo last drawn line - returns true if something was removed */
+  /** Undo last drawn line */
   undo() {
     if (this.drawnBodies.length === 0) return false;
 
     const last = this.drawnBodies.pop();
-    this.physics.removeBody(last.body);
+    for (const b of last.bodies) {
+      this.physics.removeBody(b);
+    }
     this.usedInk = Math.max(0, this.usedInk - last.inkUsed);
     return true;
   }
 
-  /** Check if undo is available */
   get canUndo() {
     return this.drawnBodies.length > 0;
   }
 
-  /** Draw the current preview line and all completed lines */
   render(ctx) {
     // Draw completed lines
     for (const drawn of this.drawnBodies) {
-      this._drawLine(ctx, drawn.body, this.lineColor);
+      this._drawSegments(ctx, drawn.bodies, this.lineColor);
     }
 
     // Draw current preview
@@ -165,11 +164,9 @@ export class Drawing {
     }
   }
 
-  _drawLine(ctx, body, color) {
-    // Draw each part of the compound body
-    for (const part of body.parts) {
-      if (part === body) continue; // skip parent
-      const verts = part.vertices;
+  _drawSegments(ctx, bodies, color) {
+    for (const body of bodies) {
+      const verts = body.vertices;
       ctx.beginPath();
       ctx.fillStyle = color;
       ctx.moveTo(verts[0].x, verts[0].y);
@@ -181,10 +178,11 @@ export class Drawing {
     }
   }
 
-  /** Reset all drawings and ink */
   reset(maxInk) {
     for (const drawn of this.drawnBodies) {
-      this.physics.removeBody(drawn.body);
+      for (const b of drawn.bodies) {
+        this.physics.removeBody(b);
+      }
     }
     this.drawnBodies = [];
     this.currentPoints = [];
@@ -194,7 +192,6 @@ export class Drawing {
     if (maxInk !== undefined) this.maxInk = maxInk;
   }
 
-  /** Get ink usage ratio (0-1) */
   get inkRatio() {
     return this.usedInk / this.maxInk;
   }
