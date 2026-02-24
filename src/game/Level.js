@@ -2,10 +2,19 @@ import { Pet } from '../entities/Pet.js';
 import { EnemySpawner } from '../entities/Enemy.js';
 import { Platform } from '../entities/Platform.js';
 import { Hazard } from '../entities/Hazard.js';
+import { Portal } from '../entities/Portal.js';
+import { Trampoline } from '../entities/Trampoline.js';
+import { Fan } from '../entities/Fan.js';
+import { MovingPlatform } from '../entities/MovingPlatform.js';
+import { GravityZone } from '../entities/GravityZone.js';
+import Matter from 'matter-js';
+
+const { Composite } = Matter;
 
 /**
- * Level loader - creates entities from level data JSON.
- * Supports multiple pets - enemies target the nearest pet.
+ * Level loader - creates all entities from level data.
+ * Supports: pets, platforms, hazards, spawners, portals,
+ * trampolines, fans, moving platforms, gravity zones.
  */
 export class Level {
   constructor(physics, data) {
@@ -16,6 +25,11 @@ export class Level {
     this.spawners = [];
     this.platforms = [];
     this.hazards = [];
+    this.portals = [];
+    this.trampolines = [];
+    this.fans = [];
+    this.movingPlatforms = [];
+    this.gravityZones = [];
     this.safeZone = data.safeZone || null;
 
     this._build();
@@ -24,38 +38,83 @@ export class Level {
   _build() {
     const d = this.data;
 
-    // Create pets
+    // Pets
     for (const p of d.pets) {
       this.pets.push(new Pet(this.physics, p.x, p.y, p.type));
     }
 
-    // Create platforms
-    for (const pl of d.platforms) {
+    // Static platforms
+    for (const pl of (d.platforms || [])) {
       this.platforms.push(new Platform(this.physics, pl.x, pl.y, pl.width, pl.height, pl.angle));
     }
 
-    // Create hazards
-    if (d.hazards) {
-      for (const h of d.hazards) {
-        this.hazards.push(new Hazard(this.physics, h.x, h.y, h.width, h.height || 30, h.type));
-      }
+    // Hazards
+    for (const h of (d.hazards || [])) {
+      this.hazards.push(new Hazard(this.physics, h.x, h.y, h.width, h.height || 30, h.type));
     }
 
-    // Create enemy spawners
-    if (d.spawners) {
-      for (const s of d.spawners) {
-        const spawner = new EnemySpawner(this.physics, s.x, s.y, {
-          maxEnemies: s.count || 5,
-          spawnInterval: s.interval || 1500,
-          spawnDelay: s.delay || 0,
-          enemyConfig: {
-            speed: s.speed || 2,
-            radius: s.radius || 12,
-            color: s.color || '#E74C3C',
-          },
-        });
-        this.spawners.push(spawner);
-      }
+    // Enemy spawners
+    for (const s of (d.spawners || [])) {
+      this.spawners.push(new EnemySpawner(this.physics, s.x, s.y, {
+        maxEnemies: s.count || 5,
+        spawnInterval: s.interval || 1500,
+        spawnDelay: s.delay || 0,
+        enemyConfig: {
+          speed: s.speed || 2,
+          radius: s.radius || 12,
+          color: s.color || '#E74C3C',
+        },
+      }));
+    }
+
+    // Portals
+    for (const p of (d.portals || [])) {
+      this.portals.push(new Portal(this.physics, p.ax, p.ay, p.bx, p.by, {
+        color: p.color,
+        colorB: p.colorB,
+        radius: p.radius,
+      }));
+    }
+
+    // Trampolines
+    for (const t of (d.trampolines || [])) {
+      this.trampolines.push(new Trampoline(this.physics, t.x, t.y, {
+        width: t.width,
+        height: t.height,
+        force: t.force,
+        color: t.color,
+      }));
+    }
+
+    // Fans
+    for (const f of (d.fans || [])) {
+      this.fans.push(new Fan(this.physics, f.x, f.y, {
+        width: f.width,
+        height: f.height,
+        direction: f.direction,
+        strength: f.strength,
+        color: f.color,
+      }));
+    }
+
+    // Moving platforms
+    for (const mp of (d.movingPlatforms || [])) {
+      this.movingPlatforms.push(new MovingPlatform(this.physics, mp.x1, mp.y1, mp.x2, mp.y2, {
+        width: mp.width,
+        height: mp.height,
+        speed: mp.speed,
+        color: mp.color,
+        pauseTime: mp.pauseTime,
+      }));
+    }
+
+    // Gravity zones
+    for (const gz of (d.gravityZones || [])) {
+      this.gravityZones.push(new GravityZone(this.physics, gz.x, gz.y, {
+        width: gz.width,
+        height: gz.height,
+        type: gz.type,
+      }));
     }
   }
 
@@ -65,7 +124,6 @@ export class Level {
     }
   }
 
-  /** Find the nearest alive pet body to a given position */
   _nearestPetBody(x, y) {
     let nearest = null;
     let minDist = Infinity;
@@ -83,11 +141,9 @@ export class Level {
   }
 
   update(now, delta) {
-    // Update spawners - each enemy targets nearest alive pet
+    // Enemy spawners
     for (const s of this.spawners) {
-      s.update(now, null); // spawn without auto-target
-
-      // Re-target enemies to nearest pet each frame
+      s.update(now, null);
       for (const e of s.enemies) {
         if (!e.alive) continue;
         const target = this._nearestPetBody(e.x, e.y);
@@ -95,12 +151,55 @@ export class Level {
       }
     }
 
-    // Update hazards
+    // Hazards
     for (const h of this.hazards) {
       h.update(delta);
     }
 
-    // Check pet expressions - scare if enemies close
+    // Portals - teleport tüm dinamik body'ler
+    if (this.portals.length > 0) {
+      const allBodies = Composite.allBodies(this.physics.world);
+      for (const portal of this.portals) {
+        portal.update(delta);
+        for (const body of allBodies) {
+          portal.checkTeleport(body, now);
+        }
+      }
+    }
+
+    // Trampolines
+    for (const t of this.trampolines) {
+      t.update(delta);
+    }
+
+    // Moving platforms
+    for (const mp of this.movingPlatforms) {
+      mp.update(delta);
+    }
+
+    // Fans - tüm dinamik body'lere kuvvet uygula
+    if (this.fans.length > 0) {
+      const allBodies = Composite.allBodies(this.physics.world);
+      for (const fan of this.fans) {
+        fan.update(delta);
+        for (const body of allBodies) {
+          fan.applyForce(body);
+        }
+      }
+    }
+
+    // Gravity zones
+    if (this.gravityZones.length > 0) {
+      const allBodies = Composite.allBodies(this.physics.world);
+      for (const gz of this.gravityZones) {
+        gz.update(delta);
+        for (const body of allBodies) {
+          gz.applyEffect(body);
+        }
+      }
+    }
+
+    // Pet expressions
     for (const pet of this.pets) {
       if (!pet.alive) continue;
       let closestDist = Infinity;
@@ -121,7 +220,7 @@ export class Level {
   }
 
   render(ctx) {
-    // Draw safe zone
+    // Safe zone
     if (this.safeZone) {
       const sz = this.safeZone;
       ctx.fillStyle = 'rgba(76, 175, 80, 0.15)';
@@ -131,35 +230,54 @@ export class Level {
       ctx.setLineDash([6, 4]);
       ctx.strokeRect(sz.x, sz.y, sz.width, sz.height);
       ctx.setLineDash([]);
-
-      ctx.fillStyle = '#4CAF50';
-      ctx.font = '12px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText('GÜVENLİ', sz.x + sz.width / 2, sz.y + sz.height / 2);
     }
 
-    // Draw hazards
+    // Gravity zones (arka planda)
+    for (const gz of this.gravityZones) {
+      gz.render(ctx);
+    }
+
+    // Fan zones
+    for (const f of this.fans) {
+      f.render(ctx);
+    }
+
+    // Portals
+    for (const p of this.portals) {
+      p.render(ctx);
+    }
+
+    // Hazards
     for (const h of this.hazards) {
       h.render(ctx);
     }
 
-    // Draw platforms
+    // Static platforms
     for (const p of this.platforms) {
       p.render(ctx);
     }
 
-    // Draw spawners + enemies
+    // Moving platforms
+    for (const mp of this.movingPlatforms) {
+      mp.render(ctx);
+    }
+
+    // Trampolines
+    for (const t of this.trampolines) {
+      t.render(ctx);
+    }
+
+    // Spawners + enemies
     for (const s of this.spawners) {
       s.render(ctx);
     }
 
-    // Draw pets (on top)
+    // Pets (on top)
     for (const p of this.pets) {
       p.render(ctx);
     }
   }
 
-  /** Check if any pet is touching an enemy */
   checkEnemyCollision(bodyA, bodyB) {
     const isPetA = bodyA.label === 'pet';
     const isPetB = bodyB.label === 'pet';
@@ -179,7 +297,6 @@ export class Level {
     return false;
   }
 
-  /** Check if any pet fell into a hazard */
   checkHazardCollision(bodyA, bodyB) {
     const isPetA = bodyA.label === 'pet';
     const isPetB = bodyB.label === 'pet';
@@ -199,7 +316,26 @@ export class Level {
     return false;
   }
 
-  /** Check if any alive pet fell off screen */
+  /** Trampoline bounce check */
+  checkTrampolineCollision(bodyA, bodyB) {
+    const isTramA = bodyA.label === 'trampoline';
+    const isTramB = bodyB.label === 'trampoline';
+
+    if (isTramA || isTramB) {
+      const otherBody = isTramA ? bodyB : bodyA;
+      const tramBody = isTramA ? bodyA : bodyB;
+      // Find the trampoline and bounce
+      for (const t of this.trampolines) {
+        if (t.body === tramBody) {
+          t.bounce(otherBody, performance.now());
+          break;
+        }
+      }
+      return true;
+    }
+    return false;
+  }
+
   isPetOffScreen(canvasHeight) {
     for (const pet of this.pets) {
       if (!pet.alive) continue;
@@ -208,12 +344,10 @@ export class Level {
     return false;
   }
 
-  /** Check if all pets are still alive */
   get allPetsAlive() {
     return this.pets.every(p => p.alive);
   }
 
-  /** Get count of alive pets */
   get alivePetCount() {
     return this.pets.filter(p => p.alive).length;
   }
@@ -223,5 +357,10 @@ export class Level {
     for (const s of this.spawners) s.destroyAll();
     for (const p of this.platforms) p.destroy();
     for (const h of this.hazards) h.destroy();
+    for (const p of this.portals) p.destroy();
+    for (const t of this.trampolines) t.destroy();
+    for (const f of this.fans) f.destroy();
+    for (const mp of this.movingPlatforms) mp.destroy();
+    for (const gz of this.gravityZones) gz.destroy();
   }
 }

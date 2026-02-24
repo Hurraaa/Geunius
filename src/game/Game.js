@@ -4,7 +4,7 @@ import { Level } from './Level.js';
 import { Scoring } from './Scoring.js';
 import { world1 } from '../data/levels/world1.js';
 
-const VERSION = '0.5.0';
+const VERSION = '0.6.0';
 const GAME_WIDTH = 600;
 const GAME_HEIGHT = 560;
 
@@ -720,6 +720,9 @@ export class Game {
       this._lose();
       return;
     }
+
+    // Trampoline bounce
+    this.level.checkTrampolineCollision(bodyA, bodyB);
   }
 
   // ── INPUT HANDLING ─────────────────────────────────

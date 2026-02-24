@@ -110,14 +110,18 @@ export class Drawing {
       return;
     }
 
-    // Convert drawn points to individual segment bodies (no compound!)
-    const bodies = this.physics.createDrawnBodies(this.currentPoints, this.lineWidth);
-    if (bodies) {
-      for (const b of bodies) {
+    // Convert drawn points to segment bodies + constraints
+    const result = this.physics.createDrawnBodies(this.currentPoints, this.lineWidth);
+    if (result) {
+      for (const b of result.bodies) {
         this.physics.addBody(b);
       }
+      for (const c of result.constraints) {
+        this.physics.addBody(c); // World.add works for constraints too
+      }
       this.drawnBodies.push({
-        bodies,
+        bodies: result.bodies,
+        constraints: result.constraints,
         points: [...this.currentPoints],
         inkUsed: this._currentLineInk || 0,
       });
@@ -132,6 +136,9 @@ export class Drawing {
     if (this.drawnBodies.length === 0) return false;
 
     const last = this.drawnBodies.pop();
+    for (const c of (last.constraints || [])) {
+      this.physics.removeBody(c);
+    }
     for (const b of last.bodies) {
       this.physics.removeBody(b);
     }
@@ -180,6 +187,9 @@ export class Drawing {
 
   reset(maxInk) {
     for (const drawn of this.drawnBodies) {
+      for (const c of (drawn.constraints || [])) {
+        this.physics.removeBody(c);
+      }
       for (const b of drawn.bodies) {
         this.physics.removeBody(b);
       }

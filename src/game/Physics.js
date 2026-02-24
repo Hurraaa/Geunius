@@ -1,6 +1,6 @@
 import Matter from 'matter-js';
 
-const { Engine, Render, World, Bodies, Body, Events, Composite, Vertices } = Matter;
+const { Engine, Render, World, Bodies, Body, Events, Composite, Vertices, Constraint } = Matter;
 
 export class Physics {
   constructor(canvas, width, height) {
@@ -88,13 +88,16 @@ export class Physics {
   }
 
   /**
-   * Creates individual segment bodies from drawn points.
-   * Returns ARRAY of bodies (compound body kullanmıyoruz - convex hull sorunu).
+   * Creates individual segment bodies + constraints from drawn points.
+   * Returns { bodies: [...], constraints: [...] }
+   * NO compound body (convex hull sorunu). Segments are connected with constraints.
    */
   createDrawnBodies(points, thickness = 8) {
     if (points.length < 2) return null;
 
     const bodies = [];
+    const constraints = [];
+
     for (let i = 0; i < points.length - 1; i++) {
       const p1 = points[i];
       const p2 = points[i + 1];
@@ -116,14 +119,37 @@ export class Physics {
         label: 'drawing',
       });
       bodies.push(segment);
+
+      // Ardışık segmentleri constraint ile bağla - kırılmaz
+      if (bodies.length >= 2) {
+        const prev = bodies[bodies.length - 2];
+        const curr = bodies[bodies.length - 1];
+        const c = Constraint.create({
+          bodyA: prev,
+          bodyB: curr,
+          pointA: { x: 0, y: 0 },
+          pointB: { x: 0, y: 0 },
+          stiffness: 0.9,
+          damping: 0.1,
+          length: 0,
+          render: { visible: false },
+        });
+        constraints.push(c);
+      }
     }
 
-    return bodies.length > 0 ? bodies : null;
+    if (bodies.length === 0) return null;
+    return { bodies, constraints };
   }
 
   reset() {
+    // Constraint'leri de temizle
+    const allConstraints = Composite.allConstraints(this.world);
+    for (const c of [...allConstraints]) {
+      World.remove(this.world, c);
+    }
     const allBodies = Composite.allBodies(this.world);
-    for (const body of allBodies) {
+    for (const body of [...allBodies]) {
       if (body.label !== 'wall') {
         World.remove(this.world, body);
       }

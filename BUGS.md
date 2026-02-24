@@ -54,3 +54,4 @@ Aynı hataların tekrarlanmaması için referans olarak kullanılır.
 7. **Canvas default boyut 300x150** - JS çalışmazsa canvas bu boyutta görünür, bu bir ipucu: JS yüklenmemiş demektir
 8. **Çizim statik yapma** - Kullanıcı dinamik fiziği tercih ediyor, statik çizim oyunu sıkıcı yapar. Bunun yerine: density artır, segment overlap artır, engine iteration artır
 9. **Tunneling düzeltmesi** - Düşman çizimden geçiyorsa: positionIterations/velocityIterations artır, segment overlap (len+6), kalın çizgi (10px), yüksek density (0.01)
+10. **Çizim kırılma sorunu** - Ayrı segment'ler birbirinden kopuyordu. Çözüm: Matter.js Constraint ile ardışık segmentleri birbirine bağla (stiffness: 0.9)
