@@ -20,7 +20,7 @@ export class Trampoline {
       isStatic: true,
       restitution: 1.5, // çok zıplayıcı
       friction: 0.3,
-      collisionFilter: { category: physics.categories.PLATFORM },
+      collisionFilter: { category: physics.categories.PLATFORM, mask: 0xFFFFFFFF },
       label: 'trampoline',
     });
 

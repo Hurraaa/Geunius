@@ -18,7 +18,7 @@ export class Platform {
       angle: angle * (Math.PI / 180), // degrees to radians
       friction: 0.8,
       restitution: 0.1,
-      collisionFilter: { category: physics.categories.PLATFORM },
+      collisionFilter: { category: physics.categories.PLATFORM, mask: 0xFFFFFFFF },
       label: 'platform',
     });
 

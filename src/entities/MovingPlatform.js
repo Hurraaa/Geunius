@@ -23,7 +23,7 @@ export class MovingPlatform {
       isStatic: true,
       friction: 0.9,
       restitution: 0.05,
-      collisionFilter: { category: physics.categories.PLATFORM },
+      collisionFilter: { category: physics.categories.PLATFORM, mask: 0xFFFFFFFF },
       label: 'moving_platform',
     });
 

@@ -20,7 +20,7 @@ export class Portal {
     this.sensorA = Bodies.circle(ax, ay, this.radius, {
       isStatic: true,
       isSensor: true,
-      collisionFilter: { category: physics.categories.HAZARD },
+      collisionFilter: { category: physics.categories.HAZARD, mask: 0xFFFFFFFF },
       label: 'portal_a',
     });
 
@@ -30,7 +30,7 @@ export class Portal {
     this.sensorB = Bodies.circle(bx, by, this.radius, {
       isStatic: true,
       isSensor: true,
-      collisionFilter: { category: physics.categories.HAZARD },
+      collisionFilter: { category: physics.categories.HAZARD, mask: 0xFFFFFFFF },
       label: 'portal_b',
     });
 

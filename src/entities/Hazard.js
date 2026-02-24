@@ -20,7 +20,7 @@ export class Hazard {
     this.body = Bodies.rectangle(x, y, width, height, {
       isStatic: true,
       isSensor: true, // doesn't physically block, just detects collision
-      collisionFilter: { category: physics.categories.HAZARD },
+      collisionFilter: { category: physics.categories.HAZARD, mask: 0xFFFFFFFF },
       label: `hazard_${type}`,
     });
 

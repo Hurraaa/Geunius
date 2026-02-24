@@ -20,7 +20,7 @@ export class Enemy {
       density: 0.001,
       friction: 0.1,
       restitution: 0.6,
-      collisionFilter: { category: physics.categories.ENEMY },
+      collisionFilter: { category: physics.categories.ENEMY, mask: 0xFFFFFFFF },
       label: 'enemy',
     });
 

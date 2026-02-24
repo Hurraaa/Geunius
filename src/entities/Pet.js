@@ -24,7 +24,7 @@ export class Pet {
       density: props.density,
       friction: props.friction,
       restitution: props.restitution,
-      collisionFilter: { category: physics.categories.PET },
+      collisionFilter: { category: physics.categories.PET, mask: 0xFFFFFFFF },
       label: 'pet',
     });
 

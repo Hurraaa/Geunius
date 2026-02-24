@@ -39,7 +39,7 @@ export class Physics {
       isStatic: true,
       friction: 0.5,
       restitution: 0.3,
-      collisionFilter: { category: this.categories.WALL },
+      collisionFilter: { category: this.categories.WALL, mask: 0xFFFFFFFF },
       label: 'wall',
     };
 
@@ -116,7 +116,7 @@ export class Physics {
         angle,
         friction: 0.8,
         restitution: 0.1,
-        collisionFilter: { category: this.categories.DRAWING },
+        collisionFilter: { category: this.categories.DRAWING, mask: 0xFFFFFFFF },
         label: 'drawing',
       });
       bodies.push(segment);
