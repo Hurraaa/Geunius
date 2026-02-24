@@ -4,7 +4,7 @@ import { Level } from './Level.js';
 import { Scoring } from './Scoring.js';
 import { world1 } from '../data/levels/world1.js';
 
-const VERSION = '0.3.0';
+const VERSION = '0.4.0';
 const GAME_WIDTH = 600;
 const GAME_HEIGHT = 560;
 

@@ -8,9 +8,11 @@ export class Physics {
     this.width = width;
     this.height = height;
 
-    // Matter.js engine
+    // Matter.js engine - daha iyi çarpışma çözümlemesi
     this.engine = Engine.create({
       gravity: { x: 0, y: 1 },
+      positionIterations: 10,  // default 6, daha hassas çarpışma
+      velocityIterations: 8,   // default 4, tunneling önleme
     });
     this.world = this.engine.world;
 
@@ -90,10 +92,10 @@ export class Physics {
 
   /**
    * Creates a physics body from drawn points.
-   * Converts an array of {x, y} points into a chain of small rectangles
-   * joined together, forming a solid drawn line.
+   * Dynamic body - falls with gravity, enemies push it.
+   * Thick segments with overlap to prevent tunneling.
    */
-  createDrawnBody(points, thickness = 8) {
+  createDrawnBody(points, thickness = 10) {
     if (points.length < 2) return null;
 
     const bodies = [];
@@ -109,7 +111,8 @@ export class Physics {
       const cx = (p1.x + p2.x) / 2;
       const cy = (p1.y + p2.y) / 2;
 
-      const segment = Bodies.rectangle(cx, cy, len + 2, thickness, {
+      // Segment overlap artırıldı (len + 6) - boşluk bırakmaz
+      const segment = Bodies.rectangle(cx, cy, len + 6, thickness, {
         angle,
         collisionFilter: { category: this.categories.DRAWING },
         friction: 0.8,
@@ -121,12 +124,12 @@ export class Physics {
 
     if (bodies.length === 0) return null;
 
-    // Create compound body from all segments (STATIC - stays where drawn)
+    // Dynamic compound body - ağır, zor itilir
     const compound = Body.create({
       parts: bodies,
-      isStatic: true,
-      friction: 0.8,
-      restitution: 0.3,
+      friction: 0.9,
+      restitution: 0.1,
+      density: 0.01, // yüksek yoğunluk = ağır = zor itilir
       label: 'drawing',
       collisionFilter: { category: this.categories.DRAWING },
     });
