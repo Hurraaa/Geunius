@@ -704,17 +704,15 @@ export class Game {
   _onCollision(bodyA, bodyB) {
     if (this.state !== STATE.SIMULATING) return;
 
+    // Any pet hit by enemy or hazard = immediate lose
     if (this.level.checkEnemyCollision(bodyA, bodyB)) {
-      // Check if all pets dead
-      if (this.level.alivePetCount === 0) {
-        this._lose();
-      }
+      this._lose();
+      return;
     }
 
     if (this.level.checkHazardCollision(bodyA, bodyB)) {
-      if (this.level.alivePetCount === 0) {
-        this._lose();
-      }
+      this._lose();
+      return;
     }
   }
 

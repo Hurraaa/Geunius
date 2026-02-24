@@ -121,12 +121,12 @@ export class Physics {
 
     if (bodies.length === 0) return null;
 
-    // Create compound body from all segments
+    // Create compound body from all segments (STATIC - stays where drawn)
     const compound = Body.create({
       parts: bodies,
+      isStatic: true,
       friction: 0.8,
-      restitution: 0.1,
-      density: 0.002,
+      restitution: 0.3,
       label: 'drawing',
       collisionFilter: { category: this.categories.DRAWING },
     });
