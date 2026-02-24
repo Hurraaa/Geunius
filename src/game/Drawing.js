@@ -1,6 +1,6 @@
 /**
  * Drawing system - handles mouse/touch input and converts drawn lines
- * into physics bodies.
+ * into physics bodies. Supports undo (last drawn line removal).
  */
 export class Drawing {
   constructor(canvas, physics) {
@@ -11,7 +11,7 @@ export class Drawing {
     // Current drawing state
     this.isDrawing = false;
     this.currentPoints = [];
-    this.drawnBodies = [];
+    this.drawnBodies = []; // { body, points, inkUsed }
 
     // Ink system
     this.maxInk = 500;
@@ -67,6 +67,7 @@ export class Drawing {
     const pos = this._getPos(e);
     this.isDrawing = true;
     this.currentPoints = [pos];
+    this._currentLineInk = 0;
   }
 
   _onMove(e) {
@@ -92,12 +93,14 @@ export class Drawing {
         y: last.y + dy * ratio,
       };
       this.currentPoints.push(clampedPos);
+      this._currentLineInk += remaining;
       this.usedInk = this.maxInk;
       this._onEnd();
       return;
     }
 
     this.currentPoints.push(pos);
+    this._currentLineInk += dist;
     this.usedInk += dist;
   }
 
@@ -117,10 +120,27 @@ export class Drawing {
       this.drawnBodies.push({
         body,
         points: [...this.currentPoints],
+        inkUsed: this._currentLineInk || 0,
       });
     }
 
     this.currentPoints = [];
+    this._currentLineInk = 0;
+  }
+
+  /** Undo last drawn line - returns true if something was removed */
+  undo() {
+    if (this.drawnBodies.length === 0) return false;
+
+    const last = this.drawnBodies.pop();
+    this.physics.removeBody(last.body);
+    this.usedInk = Math.max(0, this.usedInk - last.inkUsed);
+    return true;
+  }
+
+  /** Check if undo is available */
+  get canUndo() {
+    return this.drawnBodies.length > 0;
   }
 
   /** Draw the current preview line and all completed lines */
@@ -170,6 +190,7 @@ export class Drawing {
     this.currentPoints = [];
     this.isDrawing = false;
     this.usedInk = 0;
+    this._currentLineInk = 0;
     if (maxInk !== undefined) this.maxInk = maxInk;
   }
 

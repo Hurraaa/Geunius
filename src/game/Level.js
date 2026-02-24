@@ -5,6 +5,7 @@ import { Hazard } from '../entities/Hazard.js';
 
 /**
  * Level loader - creates entities from level data JSON.
+ * Supports multiple pets - enemies target the nearest pet.
  */
 export class Level {
   constructor(physics, data) {
@@ -59,18 +60,39 @@ export class Level {
   }
 
   startSpawners() {
-    const petBody = this.pets.length > 0 ? this.pets[0].body : null;
     for (const s of this.spawners) {
       s.start();
     }
   }
 
-  update(now, delta) {
-    const petBody = this.pets.length > 0 ? this.pets[0].body : null;
+  /** Find the nearest alive pet body to a given position */
+  _nearestPetBody(x, y) {
+    let nearest = null;
+    let minDist = Infinity;
+    for (const pet of this.pets) {
+      if (!pet.alive) continue;
+      const dx = pet.x - x;
+      const dy = pet.y - y;
+      const dist = dx * dx + dy * dy;
+      if (dist < minDist) {
+        minDist = dist;
+        nearest = pet.body;
+      }
+    }
+    return nearest;
+  }
 
-    // Update spawners
+  update(now, delta) {
+    // Update spawners - each enemy targets nearest alive pet
     for (const s of this.spawners) {
-      s.update(now, petBody);
+      s.update(now, null); // spawn without auto-target
+
+      // Re-target enemies to nearest pet each frame
+      for (const e of s.enemies) {
+        if (!e.alive) continue;
+        const target = this._nearestPetBody(e.x, e.y);
+        if (target) e.setTarget(target);
+      }
     }
 
     // Update hazards
@@ -78,7 +100,7 @@ export class Level {
       h.update(delta);
     }
 
-    // Check pet expression - scare if enemies close
+    // Check pet expressions - scare if enemies close
     for (const pet of this.pets) {
       if (!pet.alive) continue;
       let closestDist = Infinity;
@@ -137,7 +159,7 @@ export class Level {
     }
   }
 
-  /** Check if pet is touching any enemy */
+  /** Check if any pet is touching an enemy */
   checkEnemyCollision(bodyA, bodyB) {
     const isPetA = bodyA.label === 'pet';
     const isPetB = bodyB.label === 'pet';
@@ -145,12 +167,19 @@ export class Level {
     const isEnemyB = bodyB.label === 'enemy';
 
     if ((isPetA && isEnemyB) || (isPetB && isEnemyA)) {
+      const petBody = isPetA ? bodyA : bodyB;
+      for (const pet of this.pets) {
+        if (pet.body === petBody) {
+          pet.kill();
+          break;
+        }
+      }
       return true;
     }
     return false;
   }
 
-  /** Check if pet fell into a hazard */
+  /** Check if any pet fell into a hazard */
   checkHazardCollision(bodyA, bodyB) {
     const isPetA = bodyA.label === 'pet';
     const isPetB = bodyB.label === 'pet';
@@ -158,17 +187,35 @@ export class Level {
     const isHazardB = bodyB.label?.startsWith('hazard_');
 
     if ((isPetA && isHazardB) || (isPetB && isHazardA)) {
+      const petBody = isPetA ? bodyA : bodyB;
+      for (const pet of this.pets) {
+        if (pet.body === petBody) {
+          pet.kill();
+          break;
+        }
+      }
       return true;
     }
     return false;
   }
 
-  /** Check if pet fell off screen */
+  /** Check if any alive pet fell off screen */
   isPetOffScreen(canvasHeight) {
     for (const pet of this.pets) {
-      if (pet.y > canvasHeight + 100) return true;
+      if (!pet.alive) continue;
+      if (pet.y > canvasHeight + 100 || pet.x < -100 || pet.x > 700) return true;
     }
     return false;
+  }
+
+  /** Check if all pets are still alive */
+  get allPetsAlive() {
+    return this.pets.every(p => p.alive);
+  }
+
+  /** Get count of alive pets */
+  get alivePetCount() {
+    return this.pets.filter(p => p.alive).length;
   }
 
   destroy() {
