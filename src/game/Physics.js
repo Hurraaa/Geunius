@@ -96,7 +96,7 @@ export class Physics {
     if (points.length < 2) return null;
 
     const bodies = [];
-    // Physics body is thicker than visual line to prevent tunneling
+    const constraints = [];
     const physicsThickness = Math.max(thickness * 2, 16);
 
     for (let i = 0; i < points.length - 1; i++) {
@@ -112,8 +112,9 @@ export class Physics {
       const cy = (p1.y + p2.y) / 2;
 
       const segment = Bodies.rectangle(cx, cy, len + 4, physicsThickness, {
-        isStatic: true,
+        isStatic: false,
         angle,
+        density: 0.01,
         friction: 0.8,
         restitution: 0.1,
         collisionFilter: { category: this.categories.DRAWING, mask: 0xFFFFFFFF },
@@ -122,8 +123,21 @@ export class Physics {
       bodies.push(segment);
     }
 
+    // Connect consecutive segments with stiff constraints
+    for (let i = 0; i < bodies.length - 1; i++) {
+      const c = Constraint.create({
+        bodyA: bodies[i],
+        bodyB: bodies[i + 1],
+        stiffness: 0.9,
+        damping: 0.3,
+        length: 0,
+        label: 'drawing_joint',
+      });
+      constraints.push(c);
+    }
+
     if (bodies.length === 0) return null;
-    return { bodies, constraints: [] };
+    return { bodies, constraints };
   }
 
   reset() {

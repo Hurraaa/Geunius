@@ -151,18 +151,34 @@ export class Drawing {
   }
 
   render(ctx) {
-    // Draw completed lines as smooth stroked paths
+    // Draw completed lines - use body positions (they move with physics)
     for (const drawn of this.drawnBodies) {
-      this._drawPath(ctx, drawn.points, this.lineColor);
+      this._drawBodies(ctx, drawn.bodies, this.lineColor);
     }
 
-    // Draw current preview
+    // Draw current preview (static points - not in physics yet)
     if (this.isDrawing && this.currentPoints.length > 1) {
-      this._drawPath(ctx, this.currentPoints, this.previewColor);
+      this._drawPreview(ctx, this.currentPoints, this.previewColor);
     }
   }
 
-  _drawPath(ctx, points, color) {
+  _drawBodies(ctx, bodies, color) {
+    if (!bodies || bodies.length === 0) return;
+    // Draw each body as a filled polygon using its current vertices
+    ctx.fillStyle = color;
+    for (const body of bodies) {
+      const verts = body.vertices;
+      ctx.beginPath();
+      ctx.moveTo(verts[0].x, verts[0].y);
+      for (let i = 1; i < verts.length; i++) {
+        ctx.lineTo(verts[i].x, verts[i].y);
+      }
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+
+  _drawPreview(ctx, points, color) {
     if (!points || points.length < 2) return;
     ctx.beginPath();
     ctx.strokeStyle = color;
