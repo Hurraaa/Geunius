@@ -4,6 +4,7 @@ import { Level } from './Level.js';
 import { Scoring } from './Scoring.js';
 import { world1 } from '../data/levels/world1.js';
 
+const VERSION = '0.3.0';
 const GAME_WIDTH = 600;
 const GAME_HEIGHT = 560;
 
@@ -251,7 +252,12 @@ export class Game {
     // Controls info
     ctx.fillStyle = '#D5D0C5';
     ctx.font = '12px Arial';
-    ctx.fillText('Parmaginla ciz, hayvanlarini koru!', cx, 500);
+    ctx.fillText('Parmaginla ciz, hayvanlarini koru!', cx, 490);
+
+    // Version
+    ctx.fillStyle = '#CCC';
+    ctx.font = '11px Arial';
+    ctx.fillText(`v${VERSION}`, cx, 540);
 
     this._buttons = [
       {
