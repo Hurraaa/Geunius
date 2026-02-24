@@ -151,38 +151,29 @@ export class Drawing {
   }
 
   render(ctx) {
-    // Draw completed lines
+    // Draw completed lines as smooth stroked paths
     for (const drawn of this.drawnBodies) {
-      this._drawSegments(ctx, drawn.bodies, this.lineColor);
+      this._drawPath(ctx, drawn.points, this.lineColor);
     }
 
     // Draw current preview
     if (this.isDrawing && this.currentPoints.length > 1) {
-      ctx.beginPath();
-      ctx.strokeStyle = this.previewColor;
-      ctx.lineWidth = this.lineWidth;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.moveTo(this.currentPoints[0].x, this.currentPoints[0].y);
-      for (let i = 1; i < this.currentPoints.length; i++) {
-        ctx.lineTo(this.currentPoints[i].x, this.currentPoints[i].y);
-      }
-      ctx.stroke();
+      this._drawPath(ctx, this.currentPoints, this.previewColor);
     }
   }
 
-  _drawSegments(ctx, bodies, color) {
-    for (const body of bodies) {
-      const verts = body.vertices;
-      ctx.beginPath();
-      ctx.fillStyle = color;
-      ctx.moveTo(verts[0].x, verts[0].y);
-      for (let i = 1; i < verts.length; i++) {
-        ctx.lineTo(verts[i].x, verts[i].y);
-      }
-      ctx.closePath();
-      ctx.fill();
+  _drawPath(ctx, points, color) {
+    if (!points || points.length < 2) return;
+    ctx.beginPath();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = this.lineWidth;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) {
+      ctx.lineTo(points[i].x, points[i].y);
     }
+    ctx.stroke();
   }
 
   reset(maxInk) {

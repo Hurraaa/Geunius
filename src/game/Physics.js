@@ -96,6 +96,8 @@ export class Physics {
     if (points.length < 2) return null;
 
     const bodies = [];
+    // Physics body is thicker than visual line to prevent tunneling
+    const physicsThickness = Math.max(thickness * 2, 16);
 
     for (let i = 0; i < points.length - 1; i++) {
       const p1 = points[i];
@@ -109,7 +111,7 @@ export class Physics {
       const cx = (p1.x + p2.x) / 2;
       const cy = (p1.y + p2.y) / 2;
 
-      const segment = Bodies.rectangle(cx, cy, len + 2, thickness, {
+      const segment = Bodies.rectangle(cx, cy, len + 4, physicsThickness, {
         isStatic: true,
         angle,
         friction: 0.8,

@@ -37,6 +37,16 @@ export class Enemy {
   update() {
     if (!this.alive || !this.target) return;
 
+    // Cap velocity to prevent tunneling through thin walls
+    const vx = this.body.velocity.x;
+    const vy = this.body.velocity.y;
+    const vel = Math.sqrt(vx * vx + vy * vy);
+    const maxVel = 5;
+    if (vel > maxVel) {
+      const scale = maxVel / vel;
+      Body.setVelocity(this.body, { x: vx * scale, y: vy * scale });
+    }
+
     // Move toward target
     const dx = this.target.position.x - this.body.position.x;
     const dy = this.target.position.y - this.body.position.y;
