@@ -128,152 +128,147 @@ export const world1 = [
   // BÖLÜM 2: YENİ MEKANİKLER (Level 6-10)
   // ═══════════════════════════════════════════════
 
-  // Level 6: Trambolin tanıtım
+  // Level 6: Trambolin tanıtım - Pet platformsuz başlar, tramboline düşer
   {
     id: 6,
     world: 1,
     name: 'Zip Zip',
-    inkLimit: 550,
-    pets: [{ type: 'mini', x: 300, y: 220 }],
-    platforms: [
-      { x: 300, y: 270, width: 90, height: 20, angle: 0 },
-    ],
+    inkLimit: 350,
+    pets: [{ type: 'mini', x: 300, y: 100 }],
+    platforms: [],  // Platform yok! Pet düşecek
     trampolines: [
-      { x: 150, y: 480, width: 80, force: 0.06 },
-      { x: 450, y: 480, width: 80, force: 0.06 },
+      { x: 300, y: 480, width: 120, force: 0.07 },
     ],
     hazards: [
-      { type: 'fire', x: 300, y: 520, width: 150, height: 30 },
+      { type: 'fire', x: 100, y: 520, width: 120, height: 30 },
+      { type: 'fire', x: 500, y: 520, width: 120, height: 30 },
     ],
     spawners: [
-      { x: 150, y: 60, count: 3, interval: 1800, delay: 800, speed: 1.8 },
-      { x: 450, y: 60, count: 3, interval: 1800, delay: 1200, speed: 1.8 },
+      { x: 150, y: 60, count: 3, interval: 2000, delay: 2000, speed: 1.5 },
+      { x: 450, y: 60, count: 3, interval: 2000, delay: 2500, speed: 1.5 },
     ],
     safeZone: null,
     surviveTime: 10,
-    hints: ['Mini cok kaygan! Dusmemesi icin kenarlari kapat.'],
-    stars: { one: 550, two: 300, three: 150 },
+    hints: ['Mini dusecek ve trambolinde ziplayacak! Ziplama yolunu duvarlarla yonlendir.'],
+    stars: { one: 350, two: 200, three: 100 },
   },
 
-  // Level 7: Portal tanıtım
+  // Level 7: Portal tanıtım - Düşmanlar portaldan çıkıyor, iki yönden saldırı
   {
     id: 7,
     world: 1,
     name: 'Portal Kapısı',
-    inkLimit: 600,
+    inkLimit: 350,
     pets: [{ type: 'punch', x: 300, y: 250 }],
     platforms: [
-      { x: 300, y: 310, width: 100, height: 20, angle: 0 },
+      { x: 300, y: 310, width: 70, height: 20, angle: 0 },
     ],
     portals: [
-      { ax: 80, ay: 200, bx: 520, by: 200, color: '#9B59B6' },
+      { ax: 80, ay: 120, bx: 520, by: 280, color: '#9B59B6' },
     ],
     hazards: [],
     spawners: [
-      { x: 80, y: 60, count: 4, interval: 1500, delay: 800, speed: 2 },
+      { x: 80, y: 50, count: 5, interval: 1200, delay: 600, speed: 2.2 },
     ],
     safeZone: null,
     surviveTime: 10,
-    hints: ['Dusmanlar portaldan gecebilir! Her iki tarafi da koru.'],
-    stars: { one: 600, two: 350, three: 180 },
+    hints: ['Dusmanlar soldan gelip portaldan sagin yanina cikar! Az murekkepte iki tarafi da koru.'],
+    stars: { one: 350, two: 200, three: 100 },
   },
 
-  // Level 8: Rüzgar tanıtım
+  // Level 8: Rüzgar tanıtım - Güçlü rüzgar pet'i itiyor, rüzgar duvarı şart
   {
     id: 8,
     world: 1,
     name: 'Rüzgar Tüneli',
-    inkLimit: 650,
-    pets: [{ type: 'punch', x: 300, y: 230 }],
+    inkLimit: 400,
+    pets: [{ type: 'punch', x: 250, y: 230 }],
     platforms: [
-      { x: 300, y: 290, width: 100, height: 20, angle: 0 },
+      { x: 250, y: 290, width: 60, height: 20, angle: 0 },
     ],
     fans: [
-      { x: 80, y: 300, width: 60, height: 200, direction: 'right', strength: 0.0015 },
+      { x: 80, y: 250, width: 60, height: 250, direction: 'right', strength: 0.003 },
     ],
     hazards: [
-      { type: 'spikes', x: 520, y: 300, width: 30, height: 200 },
+      { type: 'spikes', x: 560, y: 300, width: 30, height: 300 },
     ],
     spawners: [
-      { x: 300, y: 50, count: 4, interval: 1500, delay: 600, speed: 2 },
+      { x: 300, y: 40, count: 4, interval: 1500, delay: 800, speed: 2 },
     ],
     safeZone: null,
     surviveTime: 10,
-    hints: ['Ruzgar saga itiyor! Punch\'i saga dusmekten koru.'],
-    stars: { one: 650, two: 380, three: 200 },
+    hints: ['Ruzgar cok guclu! Punch ucacak. Sag tarafa ruzgar duvari ciz.'],
+    stars: { one: 400, two: 240, three: 120 },
   },
 
-  // Level 9: Hareketli platform
+  // Level 9: Hareketli platform - Pet statik platformsuz, hareketli platformda
   {
     id: 9,
     world: 1,
     name: 'Kayar Platform',
-    inkLimit: 700,
-    pets: [{ type: 'punch', x: 300, y: 150 }],
-    platforms: [
-      { x: 300, y: 210, width: 70, height: 16, angle: 0 },
-    ],
+    inkLimit: 400,
+    pets: [{ type: 'punch', x: 150, y: 300 }],
+    platforms: [],  // Statik platform yok!
     movingPlatforms: [
-      { x1: 150, y1: 350, x2: 450, y2: 350, width: 90, speed: 0.0008 },
+      { x1: 150, y1: 380, x2: 450, y2: 380, width: 90, speed: 0.0008 },
     ],
     hazards: [
       { type: 'lava', x: 300, y: 530, width: 600, height: 40 },
     ],
     spawners: [
-      { x: 50, y: 50, count: 3, interval: 2000, delay: 1000, speed: 1.8 },
-      { x: 550, y: 50, count: 3, interval: 2000, delay: 1500, speed: 1.8 },
+      { x: 50, y: 50, count: 3, interval: 2000, delay: 1500, speed: 1.8 },
+      { x: 550, y: 50, count: 3, interval: 2000, delay: 2000, speed: 1.8 },
     ],
     safeZone: null,
     surviveTime: 10,
-    hints: ['Platform hareket ediyor! Punch dusmemeli.'],
-    stars: { one: 700, two: 420, three: 220 },
+    hints: ['Sabit platform yok! Punch hareketli platformda. Kenarlardan dusmesin!'],
+    stars: { one: 400, two: 240, three: 130 },
   },
 
-  // Level 10: Yerçekimi bölgesi
+  // Level 10: Yerçekimi bölgesi - Pet ters yerçekiminde, tavana uçacak
   {
     id: 10,
     world: 1,
     name: 'Ters Dünya',
-    inkLimit: 700,
+    inkLimit: 450,
     pets: [
-      { type: 'punch', x: 200, y: 250 },
-      { type: 'mini', x: 400, y: 250 },
+      { type: 'punch', x: 200, y: 350 },
+      { type: 'mini', x: 400, y: 350 },
     ],
     platforms: [
-      { x: 200, y: 310, width: 80, height: 16, angle: 0 },
-      { x: 400, y: 310, width: 80, height: 16, angle: 0 },
+      { x: 200, y: 410, width: 70, height: 16, angle: 0 },
+      { x: 400, y: 410, width: 70, height: 16, angle: 0 },
     ],
     gravityZones: [
-      { x: 300, y: 200, width: 200, height: 150, type: 'reverse' },
+      { x: 300, y: 300, width: 400, height: 250, type: 'reverse' },
     ],
     hazards: [
-      { type: 'fire', x: 300, y: 520, width: 200, height: 30 },
+      { type: 'spikes', x: 300, y: 50, width: 400, height: 20 },
     ],
     spawners: [
-      { x: 300, y: 40, count: 5, interval: 1500, delay: 600, speed: 2 },
+      { x: 100, y: 500, count: 4, interval: 1500, delay: 800, speed: 2 },
+      { x: 500, y: 500, count: 4, interval: 1500, delay: 1200, speed: 2 },
     ],
     safeZone: null,
     surviveTime: 10,
-    hints: ['Ters yercekimi bolgesi var! Dusmanlar yukari ucabilir.'],
-    stars: { one: 700, two: 400, three: 200 },
+    hints: ['Ters yercekimi! Petler yukari ucacak, tavandaki dikenlere carpiyor. Tavan ciz!'],
+    stars: { one: 450, two: 260, three: 140 },
   },
 
   // ═══════════════════════════════════════════════
   // BÖLÜM 3: MEKANİK COMBO (Level 11-15)
   // ═══════════════════════════════════════════════
 
-  // Level 11: Portal + Trambolin
+  // Level 11: Portal + Trambolin - Pet düşüyor, tramboline zıplıyor, düşmanlar portaldan geliyor
   {
     id: 11,
     world: 1,
     name: 'Portal Pinball',
-    inkLimit: 750,
-    pets: [{ type: 'mini', x: 300, y: 200 }],
-    platforms: [
-      { x: 300, y: 260, width: 80, height: 16, angle: 0 },
-    ],
+    inkLimit: 400,
+    pets: [{ type: 'mini', x: 300, y: 80 }],
+    platforms: [],  // Platform yok - pet tramboline düşecek
     portals: [
-      { ax: 80, ay: 450, bx: 520, by: 100, color: '#E74C3C' },
+      { ax: 80, ay: 480, bx: 300, by: 150, color: '#E74C3C' },
     ],
     trampolines: [
       { x: 300, y: 480, width: 100, force: 0.07 },
@@ -283,170 +278,158 @@ export const world1 = [
       { type: 'fire', x: 500, y: 520, width: 80, height: 30 },
     ],
     spawners: [
-      { x: 50, y: 50, count: 4, interval: 1300, delay: 500, speed: 2.2 },
-      { x: 550, y: 50, count: 4, interval: 1300, delay: 800, speed: 2.2 },
+      { x: 80, y: 450, count: 5, interval: 1300, delay: 1000, speed: 2.2 },
     ],
     safeZone: null,
     surviveTime: 12,
-    hints: ['Dusmanlar portaldan gecip trambolinde ziplayabilir!'],
-    stars: { one: 750, two: 420, three: 220 },
+    hints: ['Mini trambolinde ziplayacak! Dusmanlar portaldan yukari cikiyor. Yolunu ciz!'],
+    stars: { one: 400, two: 240, three: 130 },
   },
 
-  // Level 12: Rüzgar + Hareketli platform
+  // Level 12: Rüzgar + Hareketli platform - Pet hareketli platformda, rüzgar itiyor
   {
     id: 12,
     world: 1,
     name: 'Fırtına',
-    inkLimit: 800,
+    inkLimit: 500,
     pets: [
-      { type: 'punch', x: 200, y: 200 },
-      { type: 'punch', x: 400, y: 200 },
+      { type: 'punch', x: 200, y: 320 },
+      { type: 'punch', x: 400, y: 320 },
     ],
-    platforms: [
-      { x: 200, y: 260, width: 80, height: 16, angle: 0 },
-      { x: 400, y: 260, width: 80, height: 16, angle: 0 },
-    ],
+    platforms: [],  // Statik platform yok!
     movingPlatforms: [
-      { x1: 150, y1: 400, x2: 450, y2: 400, width: 70, speed: 0.001 },
+      { x1: 100, y1: 400, x2: 500, y2: 400, width: 120, speed: 0.001 },
     ],
     fans: [
-      { x: 300, y: 150, width: 200, height: 80, direction: 'down', strength: 0.002 },
+      { x: 50, y: 200, width: 50, height: 300, direction: 'right', strength: 0.0025 },
     ],
     hazards: [
+      { type: 'spikes', x: 560, y: 300, width: 30, height: 300 },
       { type: 'lava', x: 300, y: 530, width: 600, height: 40 },
     ],
     spawners: [
-      { x: 50, y: 60, count: 4, interval: 1400, delay: 500, speed: 2 },
-      { x: 550, y: 60, count: 4, interval: 1400, delay: 800, speed: 2 },
+      { x: 300, y: 50, count: 4, interval: 1500, delay: 1000, speed: 2 },
     ],
     safeZone: null,
     surviveTime: 12,
-    hints: ['Ruzgar yukden esiyor! Cizimlerin buna dayanmali.'],
-    stars: { one: 800, two: 480, three: 260 },
+    hints: ['Ruzgar saga itiyor, platform kayiyor! Petleri hem ruzgardan hem lavdan koru.'],
+    stars: { one: 500, two: 300, three: 160 },
   },
 
-  // Level 13: Çift portal + yerçekimi
+  // Level 13: Çift portal + yerçekimi - Pet sıfır yerçekiminde süzülüyor
   {
     id: 13,
     world: 1,
     name: 'Boyut Kapısı',
-    inkLimit: 800,
+    inkLimit: 500,
     pets: [
-      { type: 'punch', x: 300, y: 250 },
-      { type: 'mini', x: 300, y: 380 },
+      { type: 'punch', x: 300, y: 300 },
+      { type: 'mini', x: 300, y: 250 },
     ],
-    platforms: [
-      { x: 300, y: 310, width: 70, height: 16, angle: 0 },
-      { x: 300, y: 440, width: 70, height: 16, angle: 0 },
-    ],
+    platforms: [],  // Platform yok - sıfır yerçekiminde süzülüyorlar
     portals: [
       { ax: 80, ay: 150, bx: 520, by: 350, color: '#9B59B6' },
       { ax: 520, ay: 150, bx: 80, by: 350, color: '#E67E22' },
     ],
     gravityZones: [
-      { x: 300, y: 380, width: 150, height: 100, type: 'zero' },
+      { x: 300, y: 280, width: 300, height: 200, type: 'zero' },
+    ],
+    hazards: [
+      { type: 'fire', x: 300, y: 520, width: 400, height: 30 },
+      { type: 'spikes', x: 300, y: 50, width: 400, height: 20 },
     ],
     spawners: [
-      { x: 50, y: 50, count: 5, interval: 1200, delay: 400, speed: 2.5 },
-      { x: 550, y: 50, count: 5, interval: 1200, delay: 700, speed: 2.5 },
+      { x: 50, y: 50, count: 5, interval: 1200, delay: 500, speed: 2.5 },
+      { x: 550, y: 50, count: 5, interval: 1200, delay: 800, speed: 2.5 },
     ],
     safeZone: null,
     surviveTime: 12,
-    hints: ['Iki portal, sifir yercekimi! Strateji onemli.'],
-    stars: { one: 800, two: 480, three: 260 },
+    hints: ['Sifir yercekimi! Petler suzuluyor. Portallardan gelen dusmanlari engelle.'],
+    stars: { one: 500, two: 300, three: 160 },
   },
 
-  // Level 14: Tüm mekanikler
+  // Level 14: Tüm mekanikler - Her mekanik zorunlu
   {
     id: 14,
     world: 1,
     name: 'Kaos Fabrikası',
-    inkLimit: 1100,
+    inkLimit: 600,
     pets: [
-      { type: 'punch', x: 150, y: 200 },
-      { type: 'punch', x: 300, y: 180 },
-      { type: 'mini', x: 450, y: 220 },
+      { type: 'punch', x: 150, y: 100 },
+      { type: 'mini', x: 450, y: 320 },
     ],
     platforms: [
-      { x: 150, y: 260, width: 70, height: 16, angle: 0 },
-      { x: 300, y: 250, width: 80, height: 16, angle: 0 },
-      { x: 450, y: 280, width: 70, height: 16, angle: 0 },
+      { x: 450, y: 380, width: 50, height: 16, angle: 0 },
     ],
     portals: [
-      { ax: 50, ay: 400, bx: 550, by: 150, color: '#E74C3C' },
+      { ax: 80, ay: 450, bx: 450, by: 150, color: '#E74C3C' },
     ],
     trampolines: [
-      { x: 150, y: 470, width: 60, force: 0.06 },
-      { x: 450, y: 470, width: 60, force: 0.06 },
+      { x: 150, y: 480, width: 80, force: 0.07 },
     ],
     fans: [
-      { x: 550, y: 300, width: 50, height: 150, direction: 'left', strength: 0.001 },
+      { x: 550, y: 250, width: 50, height: 200, direction: 'left', strength: 0.002 },
     ],
     movingPlatforms: [
-      { x1: 200, y1: 380, x2: 400, y2: 380, width: 70, speed: 0.0007 },
+      { x1: 200, y1: 250, x2: 400, y2: 250, width: 70, speed: 0.0008 },
     ],
     hazards: [
       { type: 'lava', x: 300, y: 530, width: 600, height: 40 },
     ],
     spawners: [
-      { x: 50, y: 50, count: 5, interval: 1100, delay: 300, speed: 2.5 },
-      { x: 550, y: 50, count: 5, interval: 1100, delay: 600, speed: 2.5 },
-      { x: 300, y: 30, count: 4, interval: 1300, delay: 1000, speed: 3 },
+      { x: 80, y: 420, count: 4, interval: 1200, delay: 500, speed: 2.5 },
+      { x: 300, y: 30, count: 4, interval: 1300, delay: 800, speed: 2.5 },
     ],
     safeZone: null,
     surviveTime: 14,
-    hints: ['Portal, trambolin, ruzgar, hepsi var! Akilli ol.'],
-    stars: { one: 1100, two: 700, three: 400 },
+    hints: ['Punch tramboline dusecek! Mini ruzgardan korunmali! Portal dusmanları yukari tasiyor!'],
+    stars: { one: 600, two: 360, three: 200 },
   },
 
-  // Level 15: BOSS
+  // Level 15: BOSS - Her mekanik aktif, 3 pet, çok düşman
   {
     id: 15,
     world: 1,
     name: 'ORMAN PATRONU',
-    inkLimit: 1200,
+    inkLimit: 700,
     pets: [
-      { type: 'punch', x: 150, y: 220 },
-      { type: 'jumbo', x: 300, y: 160 },
-      { type: 'mini', x: 450, y: 220 },
+      { type: 'punch', x: 150, y: 80 },
+      { type: 'jumbo', x: 300, y: 320 },
+      { type: 'mini', x: 450, y: 80 },
     ],
     platforms: [
-      { x: 150, y: 280, width: 70, height: 16, angle: 0 },
-      { x: 300, y: 220, width: 60, height: 16, angle: 0 },
-      { x: 450, y: 280, width: 70, height: 16, angle: 0 },
+      { x: 300, y: 380, width: 60, height: 16, angle: 0 },
     ],
     portals: [
-      { ax: 50, ay: 200, bx: 550, by: 200, color: '#9B59B6' },
-      { ax: 50, ay: 400, bx: 550, by: 400, color: '#E74C3C' },
+      { ax: 50, ay: 450, bx: 300, by: 100, color: '#9B59B6' },
+      { ax: 550, ay: 450, bx: 300, by: 200, color: '#E74C3C' },
     ],
     trampolines: [
-      { x: 300, y: 480, width: 80, force: 0.08 },
+      { x: 150, y: 480, width: 70, force: 0.08 },
+      { x: 450, y: 480, width: 70, force: 0.08 },
     ],
     fans: [
-      { x: 50, y: 300, width: 50, height: 150, direction: 'right', strength: 0.0012 },
-      { x: 550, y: 300, width: 50, height: 150, direction: 'left', strength: 0.0012 },
+      { x: 50, y: 200, width: 50, height: 200, direction: 'right', strength: 0.002 },
+      { x: 550, y: 200, width: 50, height: 200, direction: 'left', strength: 0.002 },
     ],
     gravityZones: [
-      { x: 300, y: 130, width: 120, height: 80, type: 'reverse' },
+      { x: 300, y: 150, width: 150, height: 100, type: 'reverse' },
     ],
     movingPlatforms: [
-      { x1: 150, y1: 400, x2: 450, y2: 400, width: 80, speed: 0.001 },
+      { x1: 150, y1: 300, x2: 450, y2: 300, width: 80, speed: 0.001 },
     ],
     hazards: [
-      { type: 'lava', x: 150, y: 520, width: 100, height: 35 },
-      { type: 'fire', x: 300, y: 510, width: 80, height: 30 },
-      { type: 'spikes', x: 450, y: 520, width: 100, height: 25 },
+      { type: 'lava', x: 300, y: 530, width: 600, height: 40 },
+      { type: 'spikes', x: 300, y: 30, width: 300, height: 20 },
     ],
     spawners: [
-      { x: 50, y: 40, count: 6, interval: 1000, delay: 300, speed: 3 },
-      { x: 550, y: 40, count: 6, interval: 1000, delay: 500, speed: 3 },
-      { x: 300, y: 20, count: 5, interval: 900, delay: 800, speed: 3.5 },
-      { x: 50, y: 450, count: 3, interval: 1200, delay: 2000, speed: 2.5 },
-      { x: 550, y: 450, count: 3, interval: 1200, delay: 2500, speed: 2.5 },
+      { x: 50, y: 420, count: 5, interval: 1000, delay: 500, speed: 3 },
+      { x: 550, y: 420, count: 5, interval: 1000, delay: 700, speed: 3 },
+      { x: 300, y: 20, count: 4, interval: 1100, delay: 1000, speed: 3 },
     ],
     safeZone: null,
     surviveTime: 15,
-    hints: ['Son savas! Portal, trambolin, ruzgar, yercekimi... HER SEY!'],
-    stars: { one: 1200, two: 700, three: 400 },
+    hints: ['BOSS! Punch ve Mini tramboline dusecek, Jumbo platformda. Ruzgar, portal, ters yercekimi - HER SEY!'],
+    stars: { one: 700, two: 420, three: 230 },
   },
 ];
