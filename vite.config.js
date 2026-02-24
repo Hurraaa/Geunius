@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   root: '.',
-  base: '/Geunius/',
+  base: './',
   build: {
     outDir: 'dist',
   },

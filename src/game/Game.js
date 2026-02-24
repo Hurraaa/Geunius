@@ -404,9 +404,8 @@ export class Game {
       this.level.destroy();
     }
 
-    // Reset physics (keep walls)
-    this.physics.engine.world.bodies = [];
-    this.physics._createWalls();
+    // Reset physics properly
+    this.physics.reset();
 
     this.currentLevelIndex = index;
     const data = this.levels[index];

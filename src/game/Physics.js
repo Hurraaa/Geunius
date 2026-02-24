@@ -134,6 +134,16 @@ export class Physics {
     return compound;
   }
 
+  reset() {
+    // Remove all bodies except walls
+    const allBodies = Composite.allBodies(this.world);
+    for (const body of allBodies) {
+      if (body.label !== 'wall') {
+        World.remove(this.world, body);
+      }
+    }
+  }
+
   clear() {
     World.clear(this.world);
     Engine.clear(this.engine);
