@@ -43,6 +43,19 @@ Aynı hataların tekrarlanmaması için referans olarak kullanılır.
 
 ---
 
+## CHANGELOG: v0.7.0 - Punch & Dünya Sistemi
+- **Tarih:** 2026-02-24
+- **Ana karakter değişti:** Cat/Dog/Hamster/Rabbit → Punch the Monkey (maymun)
+- **Oyun adı değişti:** PetDraw Rescue → Save Punch!
+- **Dünya sistemi eklendi:** 20 dünya planlandı, her dünyada 15 bölüm
+- **Dünya seçim ekranı:** Kartlarla dünya seçimi, yıldız bazlı kilit açma
+- **Dünya temaları:** Her dünya farklı renk/arkaplan/mekanik
+- **İlk 4 dünya:** Yeşil Orman, Yanardağ, Buz Dağı, Uzay İstasyonu
+- **Kayıt sistemi güncellendi:** Dünya bazlı ilerleme (SAVE_KEY v2)
+- **Punch'a ithaf:** Hayvanat bahçesinde zorbalanan Punch maymununa ithaf edildi
+
+---
+
 ## Genel Kurallar (Tekrarlanmaması Gereken Hatalar)
 
 1. **Compound body KULLANMA** - Convex hull görünmez çarpışma yaratır. Ayrı body'ler kullan

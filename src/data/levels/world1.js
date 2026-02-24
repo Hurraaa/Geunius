@@ -1,21 +1,22 @@
 /**
- * Dünya 1: Ev - Eğitim bölümleri
- * Level 1-5: Kedi ile temel mekanikler
- * Level 6-10: Yeni hayvanlar + çoklu pet
- * Level 11-15: Tüm tehlikeler + Boss
+ * Dünya 1: Yeşil Orman - Eğitim bölümleri
+ * Punch'ın macerası başlıyor!
+ * Level 1-5: Temel mekanikler
+ * Level 6-10: Yeni mekanikler tanıtım
+ * Level 11-15: Kombolar + Boss
  */
 export const world1 = [
   // ═══════════════════════════════════════════════
   // BÖLÜM 1: TEMEL MEKANİKLER (Level 1-5)
   // ═══════════════════════════════════════════════
 
-  // Level 1: Basit çizgi çek, kediyi ateşten koru
+  // Level 1: Basit çizgi çek, Punch'ı koru
   {
     id: 1,
     world: 1,
     name: 'İlk Kurtarma',
     inkLimit: 600,
-    pets: [{ type: 'cat', x: 300, y: 200 }],
+    pets: [{ type: 'punch', x: 300, y: 200 }],
     platforms: [
       { x: 300, y: 260, width: 120, height: 20, angle: 0 },
     ],
@@ -27,7 +28,7 @@ export const world1 = [
     ],
     safeZone: null,
     surviveTime: 8,
-    hints: ['Kedinin üstüne bir çatı çiz!'],
+    hints: ['Punch\'in ustune bir cati ciz!'],
     stars: { one: 600, two: 350, three: 180 },
   },
 
@@ -37,7 +38,7 @@ export const world1 = [
     world: 1,
     name: 'İki Cephe',
     inkLimit: 700,
-    pets: [{ type: 'cat', x: 300, y: 300 }],
+    pets: [{ type: 'punch', x: 300, y: 300 }],
     platforms: [
       { x: 300, y: 360, width: 100, height: 20, angle: 0 },
     ],
@@ -48,7 +49,7 @@ export const world1 = [
     ],
     safeZone: null,
     surviveTime: 10,
-    hints: ['Kedinin etrafını sarmalayan bir kalkan çiz!'],
+    hints: ['Punch\'in etrafini sarmalayan bir kalkan ciz!'],
     stars: { one: 700, two: 400, three: 200 },
   },
 
@@ -58,7 +59,7 @@ export const world1 = [
     world: 1,
     name: 'Ateş ve Arılar',
     inkLimit: 650,
-    pets: [{ type: 'cat', x: 300, y: 200 }],
+    pets: [{ type: 'punch', x: 300, y: 200 }],
     platforms: [
       { x: 300, y: 260, width: 80, height: 20, angle: 0 },
     ],
@@ -71,17 +72,17 @@ export const world1 = [
     ],
     safeZone: null,
     surviveTime: 10,
-    hints: ['Kalkanın sağlam olsun, çok düşman gelecek!'],
+    hints: ['Kalkanin saglam olsun, cok dusman gelecek!'],
     stars: { one: 650, two: 380, three: 190 },
   },
 
-  // Level 4: Dar platform, düşman hızlı
+  // Level 4: Dar platform
   {
     id: 4,
     world: 1,
     name: 'Dar Köprü',
     inkLimit: 550,
-    pets: [{ type: 'cat', x: 300, y: 280 }],
+    pets: [{ type: 'punch', x: 300, y: 280 }],
     platforms: [
       { x: 300, y: 340, width: 60, height: 20, angle: 0 },
     ],
@@ -94,17 +95,17 @@ export const world1 = [
     ],
     safeZone: null,
     surviveTime: 10,
-    hints: ['Kediyi lavın üzerinden düşürmemeye dikkat et!'],
+    hints: ['Punch\'i lavdan dusurme!'],
     stars: { one: 550, two: 320, three: 160 },
   },
 
-  // Level 5: İlk "zor" level - üç yönden saldırı
+  // Level 5: Üç yönden saldırı
   {
     id: 5,
     world: 1,
     name: 'Kuşatma',
     inkLimit: 800,
-    pets: [{ type: 'cat', x: 300, y: 250 }],
+    pets: [{ type: 'punch', x: 300, y: 250 }],
     platforms: [
       { x: 300, y: 310, width: 100, height: 20, angle: 0 },
     ],
@@ -119,7 +120,7 @@ export const world1 = [
     ],
     safeZone: null,
     surviveTime: 12,
-    hints: ['Üç yönden saldırı geliyor! Kalkanını büyük çiz.'],
+    hints: ['Uc yonden saldiri geliyor! Kalkanini buyuk ciz.'],
     stars: { one: 800, two: 500, three: 280 },
   },
 
@@ -133,7 +134,7 @@ export const world1 = [
     world: 1,
     name: 'Zip Zip',
     inkLimit: 550,
-    pets: [{ type: 'hamster', x: 300, y: 220 }],
+    pets: [{ type: 'mini', x: 300, y: 220 }],
     platforms: [
       { x: 300, y: 270, width: 90, height: 20, angle: 0 },
     ],
@@ -150,17 +151,17 @@ export const world1 = [
     ],
     safeZone: null,
     surviveTime: 10,
-    hints: ['Hamster çok kaygan! Düşmemesi için kenarları kapat.'],
+    hints: ['Mini cok kaygan! Dusmemesi icin kenarlari kapat.'],
     stars: { one: 550, two: 300, three: 150 },
   },
 
-  // Level 7: Portal tanıtım - kediyi portaldan koru
+  // Level 7: Portal tanıtım
   {
     id: 7,
     world: 1,
-    name: 'Portal Kapisi',
+    name: 'Portal Kapısı',
     inkLimit: 600,
-    pets: [{ type: 'cat', x: 300, y: 250 }],
+    pets: [{ type: 'punch', x: 300, y: 250 }],
     platforms: [
       { x: 300, y: 310, width: 100, height: 20, angle: 0 },
     ],
@@ -177,13 +178,13 @@ export const world1 = [
     stars: { one: 600, two: 350, three: 180 },
   },
 
-  // Level 8: Rüzgar tanıtım - rüzgar kediyi itiyor
+  // Level 8: Rüzgar tanıtım
   {
     id: 8,
     world: 1,
-    name: 'Ruzgar Tuneli',
+    name: 'Rüzgar Tüneli',
     inkLimit: 650,
-    pets: [{ type: 'dog', x: 300, y: 230 }],
+    pets: [{ type: 'punch', x: 300, y: 230 }],
     platforms: [
       { x: 300, y: 290, width: 100, height: 20, angle: 0 },
     ],
@@ -198,17 +199,17 @@ export const world1 = [
     ],
     safeZone: null,
     surviveTime: 10,
-    hints: ['Ruzgar saga itiyor! Kopegi saga dusmekten koru.'],
+    hints: ['Ruzgar saga itiyor! Punch\'i saga dusmekten koru.'],
     stars: { one: 650, two: 380, three: 200 },
   },
 
-  // Level 9: Hareketli platform - zamanlamayı iyi yap
+  // Level 9: Hareketli platform
   {
     id: 9,
     world: 1,
     name: 'Kayar Platform',
     inkLimit: 700,
-    pets: [{ type: 'rabbit', x: 300, y: 150 }],
+    pets: [{ type: 'punch', x: 300, y: 150 }],
     platforms: [
       { x: 300, y: 210, width: 70, height: 16, angle: 0 },
     ],
@@ -224,19 +225,19 @@ export const world1 = [
     ],
     safeZone: null,
     surviveTime: 10,
-    hints: ['Platform hareket ediyor! Tavsan dusmesin.'],
+    hints: ['Platform hareket ediyor! Punch dusmemeli.'],
     stars: { one: 700, two: 420, three: 220 },
   },
 
-  // Level 10: Yerçekimi bölgesi - ters yerçekimi
+  // Level 10: Yerçekimi bölgesi
   {
     id: 10,
     world: 1,
-    name: 'Ters Dunya',
+    name: 'Ters Dünya',
     inkLimit: 700,
     pets: [
-      { type: 'cat', x: 200, y: 250 },
-      { type: 'hamster', x: 400, y: 250 },
+      { type: 'punch', x: 200, y: 250 },
+      { type: 'mini', x: 400, y: 250 },
     ],
     platforms: [
       { x: 200, y: 310, width: 80, height: 16, angle: 0 },
@@ -261,13 +262,13 @@ export const world1 = [
   // BÖLÜM 3: MEKANİK COMBO (Level 11-15)
   // ═══════════════════════════════════════════════
 
-  // Level 11: Portal + Trambolin combo
+  // Level 11: Portal + Trambolin
   {
     id: 11,
     world: 1,
     name: 'Portal Pinball',
     inkLimit: 750,
-    pets: [{ type: 'hamster', x: 300, y: 200 }],
+    pets: [{ type: 'mini', x: 300, y: 200 }],
     platforms: [
       { x: 300, y: 260, width: 80, height: 16, angle: 0 },
     ],
@@ -295,11 +296,11 @@ export const world1 = [
   {
     id: 12,
     world: 1,
-    name: 'Firtina',
+    name: 'Fırtına',
     inkLimit: 800,
     pets: [
-      { type: 'cat', x: 200, y: 200 },
-      { type: 'dog', x: 400, y: 200 },
+      { type: 'punch', x: 200, y: 200 },
+      { type: 'punch', x: 400, y: 200 },
     ],
     platforms: [
       { x: 200, y: 260, width: 80, height: 16, angle: 0 },
@@ -320,7 +321,7 @@ export const world1 = [
     ],
     safeZone: null,
     surviveTime: 12,
-    hints: ['Ruzgar yukden esiyor! Cizimin buna dayanmali.'],
+    hints: ['Ruzgar yukden esiyor! Cizimlerin buna dayanmali.'],
     stars: { one: 800, two: 480, three: 260 },
   },
 
@@ -328,11 +329,11 @@ export const world1 = [
   {
     id: 13,
     world: 1,
-    name: 'Boyut Kapisi',
+    name: 'Boyut Kapısı',
     inkLimit: 800,
     pets: [
-      { type: 'rabbit', x: 300, y: 250 },
-      { type: 'hamster', x: 300, y: 380 },
+      { type: 'punch', x: 300, y: 250 },
+      { type: 'mini', x: 300, y: 380 },
     ],
     platforms: [
       { x: 300, y: 310, width: 70, height: 16, angle: 0 },
@@ -355,16 +356,16 @@ export const world1 = [
     stars: { one: 800, two: 480, three: 260 },
   },
 
-  // Level 14: Tüm mekanikler - kaos
+  // Level 14: Tüm mekanikler
   {
     id: 14,
     world: 1,
-    name: 'Kaos Fabrikasi',
+    name: 'Kaos Fabrikası',
     inkLimit: 1100,
     pets: [
-      { type: 'cat', x: 150, y: 200 },
-      { type: 'dog', x: 300, y: 180 },
-      { type: 'hamster', x: 450, y: 220 },
+      { type: 'punch', x: 150, y: 200 },
+      { type: 'punch', x: 300, y: 180 },
+      { type: 'mini', x: 450, y: 220 },
     ],
     platforms: [
       { x: 150, y: 260, width: 70, height: 16, angle: 0 },
@@ -398,16 +399,16 @@ export const world1 = [
     stars: { one: 1100, two: 700, three: 400 },
   },
 
-  // Level 15: PATRON - her şey var
+  // Level 15: BOSS
   {
     id: 15,
     world: 1,
-    name: 'PATRON',
+    name: 'ORMAN PATRONU',
     inkLimit: 1200,
     pets: [
-      { type: 'cat', x: 150, y: 220 },
-      { type: 'dog', x: 300, y: 160 },
-      { type: 'rabbit', x: 450, y: 220 },
+      { type: 'punch', x: 150, y: 220 },
+      { type: 'jumbo', x: 300, y: 160 },
+      { type: 'mini', x: 450, y: 220 },
     ],
     platforms: [
       { x: 150, y: 280, width: 70, height: 16, angle: 0 },

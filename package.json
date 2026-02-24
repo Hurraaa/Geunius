@@ -1,7 +1,7 @@
 {
-  "name": "petdraw-rescue",
-  "version": "0.1.0",
-  "description": "PetDraw Rescue - Fizik tabanlı çizim bulmaca oyunu",
+  "name": "save-punch",
+  "version": "0.7.0",
+  "description": "Save Punch! - Fizik tabanlı çizim bulmaca oyunu. Punch'ı koru!",
   "type": "module",
   "scripts": {
     "dev": "vite",
