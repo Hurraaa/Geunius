@@ -96,8 +96,6 @@ export class Physics {
     if (points.length < 2) return null;
 
     const bodies = [];
-    const segLens = [];
-    const constraints = [];
 
     for (let i = 0; i < points.length - 1; i++) {
       const p1 = points[i];
@@ -112,39 +110,18 @@ export class Physics {
       const cy = (p1.y + p2.y) / 2;
 
       const segment = Bodies.rectangle(cx, cy, len + 2, thickness, {
+        isStatic: true,
         angle,
-        density: 0.002,
         friction: 0.8,
         restitution: 0.1,
         collisionFilter: { category: this.categories.DRAWING },
         label: 'drawing',
       });
       bodies.push(segment);
-      segLens.push(len);
-
-      // Connect at endpoints, not centers
-      if (bodies.length >= 2) {
-        const prev = bodies[bodies.length - 2];
-        const curr = bodies[bodies.length - 1];
-        const prevHalf = (segLens[segLens.length - 2] + 2) / 2;
-        const currHalf = (len + 2) / 2;
-
-        const c = Constraint.create({
-          bodyA: prev,
-          bodyB: curr,
-          pointA: { x: prevHalf, y: 0 },
-          pointB: { x: -currHalf, y: 0 },
-          stiffness: 0.9,
-          damping: 0.1,
-          length: 0,
-          render: { visible: false },
-        });
-        constraints.push(c);
-      }
     }
 
     if (bodies.length === 0) return null;
-    return { bodies, constraints };
+    return { bodies, constraints: [] };
   }
 
   reset() {
