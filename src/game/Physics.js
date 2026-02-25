@@ -88,15 +88,13 @@ export class Physics {
   }
 
   /**
-   * Creates individual segment bodies + constraints from drawn points.
-   * Returns { bodies: [...], constraints: [...] }
-   * NO compound body (convex hull sorunu). Segments are connected with constraints.
+   * Creates a compound physics body from drawn points.
+   * Segments are joined into a single dynamic body that moves as one piece.
    */
-  createDrawnBodies(points, thickness = 8) {
+  createDrawnBody(points, thickness = 8) {
     if (points.length < 2) return null;
 
     const bodies = [];
-    const constraints = [];
     const physicsThickness = Math.max(thickness * 2, 16);
 
     for (let i = 0; i < points.length - 1; i++) {
@@ -111,33 +109,28 @@ export class Physics {
       const cx = (p1.x + p2.x) / 2;
       const cy = (p1.y + p2.y) / 2;
 
-      const segment = Bodies.rectangle(cx, cy, len + 4, physicsThickness, {
-        isStatic: false,
+      const segment = Bodies.rectangle(cx, cy, len + 2, physicsThickness, {
         angle,
-        density: 0.01,
+        collisionFilter: { category: this.categories.DRAWING, mask: 0xFFFFFFFF },
         friction: 0.8,
         restitution: 0.1,
-        collisionFilter: { category: this.categories.DRAWING, mask: 0xFFFFFFFF },
         label: 'drawing',
       });
       bodies.push(segment);
     }
 
-    // Connect consecutive segments with stiff constraints
-    for (let i = 0; i < bodies.length - 1; i++) {
-      const c = Constraint.create({
-        bodyA: bodies[i],
-        bodyB: bodies[i + 1],
-        stiffness: 0.9,
-        damping: 0.3,
-        length: 0,
-        label: 'drawing_joint',
-      });
-      constraints.push(c);
-    }
-
     if (bodies.length === 0) return null;
-    return { bodies, constraints };
+
+    const compound = Body.create({
+      parts: bodies,
+      friction: 0.8,
+      restitution: 0.1,
+      density: 0.002,
+      label: 'drawing',
+      collisionFilter: { category: this.categories.DRAWING, mask: 0xFFFFFFFF },
+    });
+
+    return compound;
   }
 
   reset() {
