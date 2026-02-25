@@ -131,10 +131,6 @@ export class Physics {
       collisionFilter: { category: this.categories.DRAWING, mask: 0xFFFFFFFF },
     });
 
-    // Disable collision on the parent convex hull (parts[0] = parent).
-    // Only actual segment parts will collide - no invisible ghost area.
-    compound.parts[0].collisionFilter = { category: 0, mask: 0 };
-
     return compound;
   }
 
