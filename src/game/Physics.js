@@ -88,15 +88,14 @@ export class Physics {
   }
 
   /**
-   * Creates individual segment bodies pinned at shared endpoints.
-   * NO compound body - avoids Matter.js convex hull ghost collisions.
-   * Returns { bodies: [...], constraints: [...] }
+   * Creates a compound physics body from drawn points.
+   * Segments are joined into a single rigid body.
+   * Parent convex hull collision is disabled to prevent ghost collisions.
    */
-  createDrawnBodies(points, thickness = 8) {
+  createDrawnBody(points, thickness = 8) {
     if (points.length < 2) return null;
 
     const bodies = [];
-    const halfLengths = [];
     const physicsThickness = Math.max(thickness * 2, 16);
 
     for (let i = 0; i < points.length - 1; i++) {
@@ -112,37 +111,31 @@ export class Physics {
       const cy = (p1.y + p2.y) / 2;
 
       const segment = Bodies.rectangle(cx, cy, len + 2, physicsThickness, {
-        isStatic: false,
         angle,
-        density: 0.005,
+        collisionFilter: { category: this.categories.DRAWING, mask: 0xFFFFFFFF },
         friction: 0.8,
         restitution: 0.1,
-        collisionFilter: { category: this.categories.DRAWING, mask: 0xFFFFFFFF },
         label: 'drawing',
       });
       bodies.push(segment);
-      halfLengths.push((len + 2) / 2);
     }
 
     if (bodies.length === 0) return null;
 
-    // Pin consecutive segments at their shared endpoint
-    const constraints = [];
-    for (let i = 0; i < bodies.length - 1; i++) {
-      const c = Constraint.create({
-        bodyA: bodies[i],
-        pointA: { x: halfLengths[i], y: 0 },   // end of segment i (local)
-        bodyB: bodies[i + 1],
-        pointB: { x: -halfLengths[i + 1], y: 0 }, // start of segment i+1 (local)
-        stiffness: 1,
-        damping: 0.3,
-        length: 0,
-        render: { visible: false },
-      });
-      constraints.push(c);
-    }
+    const compound = Body.create({
+      parts: bodies,
+      friction: 0.8,
+      restitution: 0.1,
+      density: 0.002,
+      label: 'drawing',
+      collisionFilter: { category: this.categories.DRAWING, mask: 0xFFFFFFFF },
+    });
 
-    return { bodies, constraints };
+    // Disable collision on the parent convex hull (parts[0] = parent).
+    // Only actual segment parts will collide - no invisible ghost area.
+    compound.parts[0].collisionFilter = { category: 0, mask: 0 };
+
+    return compound;
   }
 
   reset() {
