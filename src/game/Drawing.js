@@ -11,7 +11,7 @@ export class Drawing {
     // Current drawing state
     this.isDrawing = false;
     this.currentPoints = [];
-    this.drawnBodies = []; // { body, inkUsed }
+    this.drawnBodies = []; // { bodies: [...], constraints: [...], inkUsed }
 
     // Ink system
     this.maxInk = 500;
@@ -110,12 +110,18 @@ export class Drawing {
       return;
     }
 
-    // Convert drawn points to a single compound physics body
-    const body = this.physics.createDrawnBody(this.currentPoints, this.lineWidth);
-    if (body) {
-      this.physics.addBody(body);
+    // Convert drawn points to individual segment bodies + endpoint constraints
+    const result = this.physics.createDrawnBodies(this.currentPoints, this.lineWidth);
+    if (result) {
+      for (const b of result.bodies) {
+        this.physics.addBody(b);
+      }
+      for (const c of result.constraints) {
+        this.physics.addBody(c);
+      }
       this.drawnBodies.push({
-        body,
+        bodies: result.bodies,
+        constraints: result.constraints,
         inkUsed: this._currentLineInk || 0,
       });
     }
@@ -129,7 +135,12 @@ export class Drawing {
     if (this.drawnBodies.length === 0) return false;
 
     const last = this.drawnBodies.pop();
-    this.physics.removeBody(last.body);
+    for (const c of (last.constraints || [])) {
+      this.physics.removeBody(c);
+    }
+    for (const b of last.bodies) {
+      this.physics.removeBody(b);
+    }
     this.usedInk = Math.max(0, this.usedInk - last.inkUsed);
     return true;
   }
@@ -139,9 +150,9 @@ export class Drawing {
   }
 
   render(ctx) {
-    // Draw completed lines using body part vertices (moves with physics)
+    // Draw completed lines using body vertices (moves with physics)
     for (const drawn of this.drawnBodies) {
-      this._drawCompoundBody(ctx, drawn.body, this.lineColor);
+      this._drawBodies(ctx, drawn.bodies, this.lineColor);
     }
 
     // Draw current preview (not in physics yet)
@@ -150,11 +161,11 @@ export class Drawing {
     }
   }
 
-  _drawCompoundBody(ctx, body, color) {
+  _drawBodies(ctx, bodies, color) {
+    if (!bodies || bodies.length === 0) return;
     ctx.fillStyle = color;
-    for (const part of body.parts) {
-      if (part === body) continue; // skip parent
-      const verts = part.vertices;
+    for (const body of bodies) {
+      const verts = body.vertices;
       ctx.beginPath();
       ctx.moveTo(verts[0].x, verts[0].y);
       for (let i = 1; i < verts.length; i++) {
@@ -181,7 +192,12 @@ export class Drawing {
 
   reset(maxInk) {
     for (const drawn of this.drawnBodies) {
-      this.physics.removeBody(drawn.body);
+      for (const c of (drawn.constraints || [])) {
+        this.physics.removeBody(c);
+      }
+      for (const b of drawn.bodies) {
+        this.physics.removeBody(b);
+      }
     }
     this.drawnBodies = [];
     this.currentPoints = [];

@@ -9,7 +9,9 @@ import { MovingPlatform } from '../entities/MovingPlatform.js';
 import { GravityZone } from '../entities/GravityZone.js';
 import Matter from 'matter-js';
 
-const { Composite } = Matter;
+const { Composite, Body } = Matter;
+
+const MAX_SPEED = 12;
 
 /**
  * Level loader - creates all entities from level data.
@@ -196,6 +198,17 @@ export class Level {
         for (const body of allBodies) {
           gz.applyEffect(body);
         }
+      }
+    }
+
+    // Clamp pet velocity to prevent tunneling through platforms
+    for (const pet of this.pets) {
+      if (!pet.alive) continue;
+      const vel = pet.body.velocity;
+      const speed = Math.sqrt(vel.x * vel.x + vel.y * vel.y);
+      if (speed > MAX_SPEED) {
+        const scale = MAX_SPEED / speed;
+        Body.setVelocity(pet.body, { x: vel.x * scale, y: vel.y * scale });
       }
     }
 
