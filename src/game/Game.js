@@ -8,7 +8,7 @@ import { world2 } from '../data/levels/world2.js';
 import { world3 } from '../data/levels/world3.js';
 import { world4 } from '../data/levels/world4.js';
 
-const VERSION = '0.12.4';
+const VERSION = '0.13.0';
 const GAME_WIDTH = 600;
 const GAME_HEIGHT = 560;
 
@@ -155,15 +155,15 @@ export class Game {
         if (this.level.allPetsAlive) {
           this._win();
         } else {
-          this._lose();
+          this._lose('Sure doldu, tum maymunlar hayatta degil!');
         }
       }
 
       if (this.level.isPetOffScreen(GAME_HEIGHT)) {
-        this._lose();
+        this._lose('Maymun ekrandan dustu!');
       }
       if (this.level.alivePetCount === 0) {
-        this._lose();
+        if (!this.loseReason) this._lose('Tum maymunlar oldu!');
       }
     }
   }
@@ -895,16 +895,23 @@ export class Game {
 
     // Panel
     ctx.fillStyle = '#fff';
-    this._roundRect(cx - 150, 150, 300, 260, 16);
+    this._roundRect(cx - 150, 140, 300, 300, 16);
 
     ctx.fillStyle = '#E74C3C';
     ctx.font = 'bold 28px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText('Kaybettin!', cx, 200);
+    ctx.fillText('Kaybettin!', cx, 195);
 
     // Sad monkey
     ctx.font = '48px Arial';
-    ctx.fillText('🙈', cx, 260);
+    ctx.fillText('🙈', cx, 250);
+
+    // Death reason
+    if (this.loseReason) {
+      ctx.fillStyle = '#C0392B';
+      ctx.font = 'bold 14px Arial';
+      ctx.fillText(this.loseReason, cx, 285);
+    }
 
     // Hint
     const levelData = levels[this.currentLevelIndex];
@@ -914,24 +921,24 @@ export class Game {
       const hint = levelData.hints[0];
       if (hint.length > 35) {
         const mid = hint.lastIndexOf(' ', 35);
-        ctx.fillText(hint.slice(0, mid), cx, 300);
-        ctx.fillText(hint.slice(mid + 1), cx, 316);
+        ctx.fillText(hint.slice(0, mid), cx, 310);
+        ctx.fillText(hint.slice(mid + 1), cx, 326);
       } else {
-        ctx.fillText(hint, cx, 308);
+        ctx.fillText(hint, cx, 318);
       }
     }
 
     // Buttons
-    this._drawButton(cx - 75, 340, 150, 42, 'Tekrar Dene', '#E74C3C', '#fff', 15);
-    this._drawButton(cx - 55, 395, 110, 32, 'Bolumler', '#3498DB', '#fff', 12);
+    this._drawButton(cx - 75, 350, 150, 42, 'Tekrar Dene', '#E74C3C', '#fff', 15);
+    this._drawButton(cx - 55, 400, 110, 32, 'Bolumler', '#3498DB', '#fff', 12);
 
     this._buttons = [
       {
-        x: cx - 75, y: 340, w: 150, h: 42,
+        x: cx - 75, y: 350, w: 150, h: 42,
         action: () => this._loadLevel(this.currentLevelIndex),
       },
       {
-        x: cx - 55, y: 395, w: 110, h: 32,
+        x: cx - 55, y: 400, w: 110, h: 32,
         action: () => { this.state = STATE.LEVEL_SELECT; },
       },
     ];
@@ -947,6 +954,7 @@ export class Game {
     this.physics.reset();
 
     this.currentLevelIndex = index;
+    this.loseReason = null;
     const levels = this._currentWorldLevels;
     const data = levels[index];
 
@@ -992,10 +1000,11 @@ export class Game {
     saveProgress(this.progress);
   }
 
-  _lose() {
+  _lose(reason = 'Bilinmeyen neden') {
     if (this.state === STATE.LOSE) return;
     this.state = STATE.LOSE;
     this.drawing.enabled = false;
+    this.loseReason = reason;
 
     for (const pet of this.level.pets) {
       if (pet.alive) pet.kill();
@@ -1005,13 +1014,14 @@ export class Game {
   _onCollision(bodyA, bodyB) {
     if (this.state !== STATE.SIMULATING) return;
 
-    if (this.level.checkEnemyCollision(bodyA, bodyB)) {
-      this._lose();
+    const hazardType = this.level.checkHazardCollision(bodyA, bodyB);
+    if (hazardType) {
+      this._lose(hazardType);
       return;
     }
 
-    if (this.level.checkHazardCollision(bodyA, bodyB)) {
-      this._lose();
+    if (this.level.checkEnemyCollision(bodyA, bodyB)) {
+      this._lose('Dusman yakaladi!');
       return;
     }
 

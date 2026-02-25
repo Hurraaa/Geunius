@@ -11,6 +11,8 @@ export const world1 = [
   // ═══════════════════════════════════════════════
 
   // Level 1: Basit çizgi çek, Punch'ı koru
+  // Fizik: Düşman yukarıdan düşer, pet platformda. Ateş altta - pet düşerse yanar.
+  // Çözüm: Pet'in üstüne yatay çatı çiz. Düşman çatıya çarpar, pet'e ulaşamaz.
   {
     id: 1,
     world: 1,
@@ -33,6 +35,8 @@ export const world1 = [
   },
 
   // Level 2: İki taraftan gelen düşmanlar
+  // Fizik: Düşmanlar soldan ve sağdan gelir. Pet itilirse lavaya düşer.
+  // Çözüm: Pet'in iki yanına duvar çiz - düşmanları engelle + pet'i platformda tut.
   {
     id: 2,
     world: 1,
@@ -42,7 +46,9 @@ export const world1 = [
     platforms: [
       { x: 300, y: 360, width: 100, height: 20, angle: 0 },
     ],
-    hazards: [],
+    hazards: [
+      { type: 'lava', x: 300, y: 530, width: 600, height: 40 },
+    ],
     spawners: [
       { x: 50, y: 200, count: 3, interval: 2000, delay: 500, speed: 1.5 },
       { x: 550, y: 200, count: 3, interval: 2000, delay: 1500, speed: 1.5 },
@@ -54,6 +60,9 @@ export const world1 = [
   },
 
   // Level 3: Ateş + düşman combo
+  // Fizik: Platform dar (80px), altında ateş. Düşmanlar yukarıdan yağar.
+  // Çözüm: Üstüne çatı çiz (düşman engeli) + kenarlarına duvar (ateşe düşmeyi önle).
+  // İnk kısıtlı - her çizgi önemli.
   {
     id: 3,
     world: 1,
@@ -64,19 +73,20 @@ export const world1 = [
       { x: 300, y: 260, width: 80, height: 20, angle: 0 },
     ],
     hazards: [
-      { type: 'fire', x: 200, y: 520, width: 100, height: 30 },
-      { type: 'fire', x: 400, y: 520, width: 100, height: 30 },
+      { type: 'fire', x: 300, y: 320, width: 250, height: 25 },
     ],
     spawners: [
       { x: 300, y: 30, count: 5, interval: 1500, delay: 800, speed: 2 },
     ],
     safeZone: null,
     surviveTime: 10,
-    hints: ['Kalkanin saglam olsun, cok dusman gelecek!'],
+    hints: ['Platform cok dar, altinda ates var! Hem ustu hem yanlari korumalisin.'],
     stars: { one: 650, two: 380, three: 190 },
   },
 
   // Level 4: Dar platform
+  // Fizik: Platform sadece 60px (pet 36px). Lav tüm zemini kaplar. 8 düşman iki yandan.
+  // Çözüm: Pet'in iki yanına kısa duvarlar çiz (düşme engeli) + üst çatı (düşman engeli).
   {
     id: 4,
     world: 1,
@@ -100,6 +110,9 @@ export const world1 = [
   },
 
   // Level 5: Üç yönden saldırı
+  // Fizik: 3 spawner (sol-üst, sağ-üst, tam üst). Zemin tamamen lavla kaplı.
+  // Çözüm: Geniş bir kalkan çiz. Düşmanların itme kuvveti pet'i kaydırır,
+  // platform 100px - kenardan düşerse lav. İnk çok ama verimli kullan.
   {
     id: 5,
     world: 1,
@@ -110,8 +123,7 @@ export const world1 = [
       { x: 300, y: 310, width: 100, height: 20, angle: 0 },
     ],
     hazards: [
-      { type: 'fire', x: 100, y: 500, width: 80, height: 30 },
-      { type: 'fire', x: 500, y: 500, width: 80, height: 30 },
+      { type: 'lava', x: 300, y: 530, width: 600, height: 40 },
     ],
     spawners: [
       { x: 50, y: 50, count: 4, interval: 1500, delay: 500, speed: 2 },
@@ -120,7 +132,7 @@ export const world1 = [
     ],
     safeZone: null,
     surviveTime: 12,
-    hints: ['Uc yonden saldiri geliyor! Kalkanini buyuk ciz.'],
+    hints: ['Uc yonden saldiri geliyor! Dusersen lav var. Kalkanini buyuk ciz.'],
     stars: { one: 800, two: 500, three: 280 },
   },
 
@@ -128,7 +140,10 @@ export const world1 = [
   // BÖLÜM 2: YENİ MEKANİKLER (Level 6-10)
   // ═══════════════════════════════════════════════
 
-  // Level 6: Trambolin tanıtım - Pet platformsuz başlar, tramboline düşer
+  // Level 6: Trambolin tanıtım
+  // Fizik: Platform yok. Mini düşer → tramboline çarpar → yukarı zıplar → tekrar düşer (döngü).
+  // Ateşler trambolinin yanında - zıplama yana saparsa ateşe düşer.
+  // Çözüm: Trambolinin iki yanına dikey duvarlar çiz → Mini hep merkeze düşsün.
   {
     id: 6,
     world: 1,
@@ -153,7 +168,10 @@ export const world1 = [
     stars: { one: 350, two: 200, three: 100 },
   },
 
-  // Level 7: Portal tanıtım - Düşmanlar portaldan çıkıyor, iki yönden saldırı
+  // Level 7: Portal tanıtım
+  // Fizik: Portal (80,120)→(520,280). Düşmanlar sol-üstten gelir, portaldan sağ-ortaya çıkar.
+  // Sonuç: Düşman hem soldan hem sağdan (portaldan) gelir. İnk az (350).
+  // Çözüm: Az ink'le iki yönü de kapatacak stratejik çizim. Sol duvar + sağ duvar.
   {
     id: 7,
     world: 1,
@@ -176,7 +194,10 @@ export const world1 = [
     stars: { one: 350, two: 200, three: 100 },
   },
 
-  // Level 8: Rüzgar tanıtım - Güçlü rüzgar pet'i itiyor, rüzgar duvarı şart
+  // Level 8: Rüzgar tanıtım
+  // Fizik: Fan soldan sağa 0.003 kuvvetle iter. Sağda dikenler (duvar boyunca).
+  // Pet platformda ama rüzgar iter → platformdan kayar → dikenlere çarpar.
+  // Çözüm: Pet'in sağına dikey duvar çiz (rüzgar kalkanı). Üstten gelen düşmanlara çatı.
   {
     id: 8,
     world: 1,
@@ -201,7 +222,10 @@ export const world1 = [
     stars: { one: 400, two: 240, three: 120 },
   },
 
-  // Level 9: Hareketli platform - Pet statik platformsuz, hareketli platformda
+  // Level 9: Hareketli platform
+  // Fizik: Statik platform yok. Hareketli platform x:150↔450 arası kayar. Altta lav.
+  // Pet platformla birlikte hareket etmez (sürtünmeye bağlı), kayıp düşebilir.
+  // Çözüm: Pet'in etrafına koruma çiz - hem düşmanları engelle hem platformdan kaymasını önle.
   {
     id: 9,
     world: 1,
@@ -225,7 +249,10 @@ export const world1 = [
     stars: { one: 400, two: 240, three: 130 },
   },
 
-  // Level 10: Yerçekimi bölgesi - Pet ters yerçekiminde, tavana uçacak
+  // Level 10: Yerçekimi bölgesi (ilk 2-pet level)
+  // Fizik: Ters yerçekimi bölgesi pet'lerin olduğu alanı kaplıyor. Pet'ler yukarı uçar.
+  // Tavanda dikenler var → uçan pet dikenlere çarpar = ölüm.
+  // Çözüm: Pet'lerin üstüne yatay tavan çiz → yukarı uçmayı engelle. Düşmanlar alttan gelir.
   {
     id: 10,
     world: 1,
@@ -259,7 +286,10 @@ export const world1 = [
   // BÖLÜM 3: MEKANİK COMBO (Level 11-15)
   // ═══════════════════════════════════════════════
 
-  // Level 11: Portal + Trambolin - Pet düşüyor, tramboline zıplıyor, düşmanlar portaldan geliyor
+  // Level 11: Portal + Trambolin combo
+  // Fizik: Mini düşer → tramboline zıplar. Portal (80,480)→(300,150) düşmanları yukarı taşır.
+  // Ateşler trambolinin yanlarında - Mini yana saparsa yanar.
+  // Çözüm: Zıplama koridoru çiz (dikey duvarlar) + portaldan çıkan düşmanları engelleyici çatı.
   {
     id: 11,
     world: 1,
@@ -286,19 +316,22 @@ export const world1 = [
     stars: { one: 400, two: 240, three: 130 },
   },
 
-  // Level 12: Rüzgar + Hareketli platform - Pet hareketli platformda, rüzgar itiyor
+  // Level 12: Rüzgar + Hareketli platform
+  // Fizik: 2 pet dar hareketli platformda. Rüzgar sağa iter. Sağda dikenler, altta lav.
+  // Rüzgar pet'i sağa iter → dikenlere. Platform sola kayınca pet boşluğa düşer → lava.
+  // Çözüm: Rüzgar duvarı çiz (sağa itilmeyi önle) + platformun üstünde koruma.
   {
     id: 12,
     world: 1,
     name: 'Fırtına',
     inkLimit: 500,
     pets: [
-      { type: 'punch', x: 200, y: 320 },
-      { type: 'punch', x: 400, y: 320 },
+      { type: 'punch', x: 280, y: 320 },
+      { type: 'punch', x: 340, y: 320 },
     ],
-    platforms: [],  // Statik platform yok!
+    platforms: [],
     movingPlatforms: [
-      { x1: 100, y1: 400, x2: 500, y2: 400, width: 120, speed: 0.001 },
+      { x1: 150, y1: 400, x2: 450, y2: 400, width: 160, speed: 0.001 },
     ],
     fans: [
       { x: 50, y: 200, width: 50, height: 300, direction: 'right', strength: 0.0025 },
@@ -316,7 +349,10 @@ export const world1 = [
     stars: { one: 500, two: 300, three: 160 },
   },
 
-  // Level 13: Çift portal + yerçekimi - Pet sıfır yerçekiminde süzülüyor
+  // Level 13: Çift portal + sıfır yerçekimi
+  // Fizik: Sıfır yerçekimi → pet'ler süzülüyor (ne yukarı ne aşağı). Üstte dikenler, altta ateş.
+  // 2 portal karşılıklı: sol-üst↔sağ-alt ve sağ-üst↔sol-alt. Düşmanlar portallarla dolaşır.
+  // Çözüm: Pet'leri ortada tutan kutu/kafes çiz. Portaldan gelen düşmanları kafes engeller.
   {
     id: 13,
     world: 1,
@@ -348,7 +384,10 @@ export const world1 = [
     stars: { one: 500, two: 300, three: 160 },
   },
 
-  // Level 14: Tüm mekanikler - Her mekanik zorunlu
+  // Level 14: Tüm mekanikler
+  // Fizik: Punch (sol) tramboline düşecek, Mini (sağ) platformda. Fan sağdan sola iter.
+  // Portal (80,450)→(450,150) düşmanları Mini'nin üstüne çıkarır. Hareketli platform ortada.
+  // Çözüm: Punch için zıplama koridoru + Mini için rüzgar duvarı + portal çıkışını engelle.
   {
     id: 14,
     world: 1,
@@ -386,7 +425,11 @@ export const world1 = [
     stars: { one: 600, two: 360, three: 200 },
   },
 
-  // Level 15: BOSS - Her mekanik aktif, 3 pet, çok düşman
+  // Level 15: BOSS
+  // Fizik: 3 pet farklı yerlerde. Punch+Mini tramboline düşecek, Jumbo dar platformda.
+  // 2 fan karşılıklı (sağa+sola iter), 2 portal düşmanları yukarı taşır.
+  // Ters yerçekimi bölgesi ortada - pet oraya girerse tavandaki dikenlere uçar.
+  // Çözüm: Her pet için ayrı koruma. Ink yetişmez hepsine → önceliklendirme gerek.
   {
     id: 15,
     world: 1,

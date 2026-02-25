@@ -341,15 +341,22 @@ export class Level {
 
     if ((isPetA && isHazardB) || (isPetB && isHazardA)) {
       const petBody = isPetA ? bodyA : bodyB;
+      const hazardLabel = isPetA ? bodyB.label : bodyA.label;
       for (const pet of this.pets) {
         if (pet.body === petBody) {
           pet.kill();
           break;
         }
       }
-      return true;
+      const hazardNames = {
+        hazard_fire: 'Atese dustu!',
+        hazard_lava: 'Lava dustu!',
+        hazard_spikes: 'Dikenlere carpti!',
+        hazard_water: 'Suya dustu!',
+      };
+      return hazardNames[hazardLabel] || 'Tehlikeye carpti!';
     }
-    return false;
+    return null;
   }
 
   /** Trampoline bounce check */
