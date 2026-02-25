@@ -212,6 +212,29 @@ export class Level {
       }
     }
 
+    // Push pet out if it sinks into a platform
+    for (const pet of this.pets) {
+      if (!pet.alive) continue;
+      const petPos = pet.body.position;
+      const half = pet.size / 2;
+      for (const plat of this.platforms) {
+        const pb = plat.body;
+        const px = pb.position.x;
+        const py = pb.position.y;
+        const pw = plat.width / 2;
+        const ph = plat.height / 2;
+        // AABB overlap check (only for non-rotated platforms)
+        if (
+          petPos.x > px - pw && petPos.x < px + pw &&
+          petPos.y + half > py - ph && petPos.y - half < py + ph
+        ) {
+          // Pet center is overlapping platform - push up above it
+          Body.setPosition(pet.body, { x: petPos.x, y: py - ph - half });
+          Body.setVelocity(pet.body, { x: pet.body.velocity.x, y: 0 });
+        }
+      }
+    }
+
     // Pet expressions
     for (const pet of this.pets) {
       if (!pet.alive) continue;
