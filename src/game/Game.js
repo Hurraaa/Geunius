@@ -8,7 +8,7 @@ import { world2 } from '../data/levels/world2.js';
 import { world3 } from '../data/levels/world3.js';
 import { world4 } from '../data/levels/world4.js';
 
-const VERSION = '0.13.0';
+const VERSION = '0.13.1';
 const GAME_WIDTH = 600;
 const GAME_HEIGHT = 560;
 

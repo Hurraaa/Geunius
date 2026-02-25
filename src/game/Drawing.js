@@ -1,6 +1,9 @@
 /**
  * Drawing system - handles mouse/touch input and converts drawn lines
  * into physics bodies. Supports undo (last drawn line removal).
+ *
+ * Segments are individual static bodies (no compound body).
+ * This avoids Matter.js convex hull ghost collisions.
  */
 export class Drawing {
   constructor(canvas, physics) {
@@ -11,7 +14,7 @@ export class Drawing {
     // Current drawing state
     this.isDrawing = false;
     this.currentPoints = [];
-    this.drawnBodies = []; // { body, inkUsed }
+    this.drawnLines = []; // { segments: [...], inkUsed }
 
     // Ink system
     this.maxInk = 500;
@@ -110,12 +113,14 @@ export class Drawing {
       return;
     }
 
-    // Convert drawn points to a single compound physics body
-    const body = this.physics.createDrawnBody(this.currentPoints, this.lineWidth);
-    if (body) {
-      this.physics.addBody(body);
-      this.drawnBodies.push({
-        body,
+    // Convert drawn points to individual static segment bodies
+    const segments = this.physics.createDrawnSegments(this.currentPoints, this.lineWidth);
+    if (segments) {
+      for (const seg of segments) {
+        this.physics.addBody(seg);
+      }
+      this.drawnLines.push({
+        segments,
         inkUsed: this._currentLineInk || 0,
       });
     }
@@ -126,22 +131,24 @@ export class Drawing {
 
   /** Undo last drawn line */
   undo() {
-    if (this.drawnBodies.length === 0) return false;
+    if (this.drawnLines.length === 0) return false;
 
-    const last = this.drawnBodies.pop();
-    this.physics.removeBody(last.body);
+    const last = this.drawnLines.pop();
+    for (const seg of last.segments) {
+      this.physics.removeBody(seg);
+    }
     this.usedInk = Math.max(0, this.usedInk - last.inkUsed);
     return true;
   }
 
   get canUndo() {
-    return this.drawnBodies.length > 0;
+    return this.drawnLines.length > 0;
   }
 
   render(ctx) {
-    // Draw completed lines using body part vertices (moves with physics)
-    for (const drawn of this.drawnBodies) {
-      this._drawCompoundBody(ctx, drawn.body, this.lineColor);
+    // Draw completed lines using body vertices (static, stays where drawn)
+    for (const drawn of this.drawnLines) {
+      this._drawSegments(ctx, drawn.segments, this.lineColor);
     }
 
     // Draw current preview (not in physics yet)
@@ -150,11 +157,10 @@ export class Drawing {
     }
   }
 
-  _drawCompoundBody(ctx, body, color) {
+  _drawSegments(ctx, segments, color) {
     ctx.fillStyle = color;
-    for (const part of body.parts) {
-      if (part === body) continue; // skip parent
-      const verts = part.vertices;
+    for (const seg of segments) {
+      const verts = seg.vertices;
       ctx.beginPath();
       ctx.moveTo(verts[0].x, verts[0].y);
       for (let i = 1; i < verts.length; i++) {
@@ -180,10 +186,12 @@ export class Drawing {
   }
 
   reset(maxInk) {
-    for (const drawn of this.drawnBodies) {
-      this.physics.removeBody(drawn.body);
+    for (const drawn of this.drawnLines) {
+      for (const seg of drawn.segments) {
+        this.physics.removeBody(seg);
+      }
     }
-    this.drawnBodies = [];
+    this.drawnLines = [];
     this.currentPoints = [];
     this.isDrawing = false;
     this.usedInk = 0;

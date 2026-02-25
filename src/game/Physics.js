@@ -88,14 +88,15 @@ export class Physics {
   }
 
   /**
-   * Creates a compound physics body from drawn points.
-   * Segments are joined into a single rigid body.
-   * Parent convex hull collision is disabled to prevent ghost collisions.
+   * Creates individual static segment bodies from drawn points.
+   * NO compound body - avoids Matter.js convex hull ghost collisions.
+   * Static segments stay where drawn and block enemies/pets reliably.
+   * Returns array of bodies.
    */
-  createDrawnBody(points, thickness = 8) {
+  createDrawnSegments(points, thickness = 8) {
     if (points.length < 2) return null;
 
-    const bodies = [];
+    const segments = [];
     const physicsThickness = Math.max(thickness * 2, 16);
 
     for (let i = 0; i < points.length - 1; i++) {
@@ -111,27 +112,17 @@ export class Physics {
       const cy = (p1.y + p2.y) / 2;
 
       const segment = Bodies.rectangle(cx, cy, len + 2, physicsThickness, {
+        isStatic: true,
         angle,
         collisionFilter: { category: this.categories.DRAWING, mask: 0xFFFFFFFF },
         friction: 0.8,
-        restitution: 0.1,
+        restitution: 0.3,
         label: 'drawing',
       });
-      bodies.push(segment);
+      segments.push(segment);
     }
 
-    if (bodies.length === 0) return null;
-
-    const compound = Body.create({
-      parts: bodies,
-      friction: 0.8,
-      restitution: 0.1,
-      density: 0.002,
-      label: 'drawing',
-      collisionFilter: { category: this.categories.DRAWING, mask: 0xFFFFFFFF },
-    });
-
-    return compound;
+    return segments.length > 0 ? segments : null;
   }
 
   reset() {

@@ -58,13 +58,11 @@ Aynı hataların tekrarlanmaması için referans olarak kullanılır.
 
 ## Genel Kurallar (Tekrarlanmaması Gereken Hatalar)
 
-1. **Compound body KULLANMA** - Convex hull görünmez çarpışma yaratır. Ayrı body'ler kullan
+1. **COMPOUND BODY ASLA KULLANMA** - Body.create({ parts }) convex hull oluşturur. Yay/U/L gibi konkav şekillerde iç kısım görünmez solid olur, düşmanları/pet'i iter. ÇÖZÜM: Her segment ayrı static body olarak ekle. Compound body KULLANMA, constraint KULLANMA.
 2. **Vite base path relative olmalı** (`'./'`) - Absolute path deploy sorunlarına yol açar
 3. **Matter.js internal state'i direkt değiştirme** - Her zaman API kullan
-4. **Compound body convex hull'e dikkat** - Parts birleşince parent body büyük convex hull oluşturur, beklenmeyen çarpışmalara yol açabilir
-5. **Collision handler'da return kullan** - Bir pet öldüğünde ikinci kontrol yapma, hemen çık
-6. **Module script defer** - `<script type="module">` otomatik defer olur, DOM hazır olur, ekstra DOMContentLoaded gerekmez
-7. **Canvas default boyut 300x150** - JS çalışmazsa canvas bu boyutta görünür, bu bir ipucu: JS yüklenmemiş demektir
-8. **Çizim statik yapma** - Kullanıcı dinamik fiziği tercih ediyor, statik çizim oyunu sıkıcı yapar. Bunun yerine: density artır, segment overlap artır, engine iteration artır
-9. **Tunneling düzeltmesi** - Düşman çizimden geçiyorsa: positionIterations/velocityIterations artır, segment overlap (len+6), kalın çizgi (10px), yüksek density (0.01)
-10. **Çizim kırılma sorunu** - Ayrı segment'ler birbirinden kopuyordu. Çözüm: Matter.js Constraint ile ardışık segmentleri birbirine bağla (stiffness: 0.9)
+4. **Collision handler'da return kullan** - Bir pet öldüğünde ikinci kontrol yapma, hemen çık
+5. **Module script defer** - `<script type="module">` otomatik defer olur, DOM hazır olur, ekstra DOMContentLoaded gerekmez
+6. **Canvas default boyut 300x150** - JS çalışmazsa canvas bu boyutta görünür, bu bir ipucu: JS yüklenmemiş demektir
+7. **Çizim = static ayrı segmentler** - Her segment ayrı isStatic:true body. Düşmez, kırılmaz, convex hull yok, ghost collision yok. Çizdiğin yerde kalır. ASLA compound body veya constraint kullanma.
+8. **parts[0].collisionFilter hack çalışmaz** - Compound body'nin parent filter'ını değiştirmek TÜM parçaların collision'ını öldürür. Bu yaklaşımı DENEME.
