@@ -97,6 +97,8 @@ export class Physics {
 
     const bodies = [];
     const physicsThickness = Math.max(thickness * 2, 16);
+    // Drawing collides with everything EXCEPT pet - prevents pushing pet through platforms
+    const drawingMask = 0xFFFFFFFF & ~this.categories.PET;
 
     for (let i = 0; i < points.length - 1; i++) {
       const p1 = points[i];
@@ -112,7 +114,7 @@ export class Physics {
 
       const segment = Bodies.rectangle(cx, cy, len + 2, physicsThickness, {
         angle,
-        collisionFilter: { category: this.categories.DRAWING, mask: 0xFFFFFFFF },
+        collisionFilter: { category: this.categories.DRAWING, mask: drawingMask },
         friction: 0.8,
         restitution: 0.1,
         label: 'drawing',
@@ -128,7 +130,7 @@ export class Physics {
       restitution: 0.1,
       density: 0.002,
       label: 'drawing',
-      collisionFilter: { category: this.categories.DRAWING, mask: 0xFFFFFFFF },
+      collisionFilter: { category: this.categories.DRAWING, mask: drawingMask },
     });
 
     return compound;
