@@ -1,0 +1,17 @@
+{
+  "name": "save-punch",
+  "version": "0.7.0",
+  "description": "Save Punch! - Fizik tabanlı çizim bulmaca oyunu. Punch'ı koru!",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "matter-js": "^0.20.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
+  }
+}
