@@ -2,13 +2,14 @@ import { Physics } from './Physics.js';
 import { Drawing } from './Drawing.js';
 import { Level } from './Level.js';
 import { Scoring } from './Scoring.js';
+import { LevelEditor } from './LevelEditor.js';
 import { WORLDS, getTotalStars, isWorldUnlocked } from '../data/worlds.js';
 import { world1 } from '../data/levels/world1.js';
 import { world2 } from '../data/levels/world2.js';
 import { world3 } from '../data/levels/world3.js';
 import { world4 } from '../data/levels/world4.js';
 
-const VERSION = '0.13.1';
+const VERSION = '0.14.0';
 const GAME_WIDTH = 600;
 const GAME_HEIGHT = 560;
 
@@ -23,6 +24,7 @@ const STATE = {
   SIMULATING: 'simulating',
   WIN: 'win',
   LOSE: 'lose',
+  EDITOR: 'editor',
 };
 
 // Save/load progress
@@ -90,11 +92,18 @@ export class Game {
         this._onClick(e.changedTouches[0]);
       }
     });
+
+    // Level editor
+    this.editor = new LevelEditor(canvas);
+    this.editor.onBack = () => this._exitEditor();
+    this.editor.onLoadFromGame = (worldIdx, levelIdx) => this._editorLoadFromGame(worldIdx, levelIdx);
   }
 
   _resize() {
     const ratio = GAME_WIDTH / GAME_HEIGHT;
-    let w = window.innerWidth;
+    const panelWidth = this.state === STATE.EDITOR ? 320 : 0;
+    let availW = window.innerWidth - panelWidth;
+    let w = availW;
     let h = window.innerHeight;
 
     if (w / h > ratio) {
@@ -108,6 +117,8 @@ export class Game {
     this.canvas.style.width = `${w}px`;
     this.canvas.style.height = `${h}px`;
     this.canvas.style.marginTop = `${(window.innerHeight - h) / 2}px`;
+    this.canvas.style.marginLeft = this.state === STATE.EDITOR ? '0' : 'auto';
+    this.canvas.style.marginRight = this.state === STATE.EDITOR ? 'auto' : 'auto';
   }
 
   get _currentWorldLevels() {
@@ -194,6 +205,9 @@ export class Game {
         this._renderGame();
         this._renderLoseOverlay();
         break;
+      case STATE.EDITOR:
+        this.editor.render();
+        break;
     }
   }
 
@@ -256,6 +270,9 @@ export class Game {
     ctx.font = '12px Arial';
     ctx.fillText('Parmaginla ciz, Punch\'i koru!', cx, 510);
 
+    // Editor button
+    this._drawButton(cx - 55, 490, 110, 30, 'Level Editor', '#546E7A', '#fff', 11);
+
     // Version
     ctx.fillStyle = '#CCC';
     ctx.font = '11px Arial';
@@ -269,6 +286,10 @@ export class Game {
       {
         x: cx - 80, y: 380, w: 160, h: 42,
         action: () => { this.state = STATE.WORLD_SELECT; },
+      },
+      {
+        x: cx - 55, y: 490, w: 110, h: 30,
+        action: () => this._enterEditor(),
       },
     ];
   }
@@ -1031,6 +1052,9 @@ export class Game {
   // ── INPUT HANDLING ─────────────────────────────────
 
   _onClick(e) {
+    // Editor handles its own input
+    if (this.state === STATE.EDITOR) return;
+
     const rect = this.canvas.getBoundingClientRect();
     const scaleX = this.canvas.width / rect.width;
     const scaleY = this.canvas.height / rect.height;
@@ -1043,6 +1067,35 @@ export class Game {
         return;
       }
     }
+  }
+
+  // ── LEVEL EDITOR ─────────────────────────────────
+
+  _enterEditor() {
+    this.state = STATE.EDITOR;
+    this.drawing.enabled = false;
+    this.editor.activate();
+    this._resize();
+  }
+
+  _exitEditor() {
+    this.editor.deactivate();
+    this.state = STATE.MENU;
+    this._resize();
+  }
+
+  _editorLoadFromGame(worldIdx, levelIdx) {
+    if (worldIdx < 0 || worldIdx >= ALL_WORLDS.length) {
+      alert('Bu dunya henuz mevcut degil!');
+      return;
+    }
+    const levels = ALL_WORLDS[worldIdx];
+    if (levelIdx < 0 || levelIdx >= levels.length) {
+      alert('Bu bolum mevcut degil!');
+      return;
+    }
+    const data = levels[levelIdx];
+    this.editor._fromLevelData(data);
   }
 
   // ── UI HELPERS ────────────────────────────────────
