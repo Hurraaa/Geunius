@@ -1,9 +1,12 @@
+import Matter from 'matter-js';
+
 /**
  * Drawing system - handles mouse/touch input and converts drawn lines
  * into physics bodies. Supports undo (last drawn line removal).
  *
  * Segments are individual static bodies (no compound body).
  * This avoids Matter.js convex hull ghost collisions.
+ * When simulation starts, segments become dynamic (affected by gravity).
  */
 export class Drawing {
   constructor(canvas, physics) {
@@ -143,6 +146,17 @@ export class Drawing {
 
   get canUndo() {
     return this.drawnLines.length > 0;
+  }
+
+  /** Convert all drawn segments from static to dynamic so gravity affects them */
+  makeSegmentsDynamic() {
+    for (const drawn of this.drawnLines) {
+      for (const seg of drawn.segments) {
+        Matter.Body.setStatic(seg, false);
+        Matter.Body.setMass(seg, 0.4);
+        seg.frictionAir = 0.01;
+      }
+    }
   }
 
   render(ctx) {

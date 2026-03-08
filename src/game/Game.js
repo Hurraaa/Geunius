@@ -9,7 +9,7 @@ import { world2 } from '../data/levels/world2.js';
 import { world3 } from '../data/levels/world3.js';
 import { world4 } from '../data/levels/world4.js';
 
-const VERSION = '0.14.0';
+const VERSION = '0.15.0';
 const GAME_WIDTH = 600;
 const GAME_HEIGHT = 560;
 
@@ -1027,6 +1027,9 @@ export class Game {
     this.state = STATE.SIMULATING;
     this.surviveTimer = 0;
     this.level.startSpawners();
+
+    // Make drawn segments dynamic so they fall with gravity
+    this.drawing.makeSegmentsDynamic();
   }
 
   _win() {
