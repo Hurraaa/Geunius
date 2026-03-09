@@ -9,7 +9,7 @@ import { world2 } from '../data/levels/world2.js';
 import { world3 } from '../data/levels/world3.js';
 import { world4 } from '../data/levels/world4.js';
 
-const VERSION = '0.14.0';
+const VERSION = '0.15.0';
 const GAME_WIDTH = 600;
 const GAME_HEIGHT = 560;
 
@@ -94,9 +94,10 @@ export class Game {
     });
 
     // Level editor
-    this.editor = new LevelEditor(canvas);
+    this.editor = new LevelEditor(canvas, ALL_WORLDS, WORLDS);
     this.editor.onBack = () => this._exitEditor();
     this.editor.onLoadFromGame = (worldIdx, levelIdx) => this._editorLoadFromGame(worldIdx, levelIdx);
+    this.editor.onTest = (levelData) => this._testEditorLevel(levelData);
   }
 
   _resize() {
@@ -705,7 +706,7 @@ export class Game {
     const ctx = this.ctx;
     const world = this._currentWorldMeta;
     const levels = this._currentWorldLevels;
-    const levelData = levels[this.currentLevelIndex];
+    const levelData = this._editorTestMode ? this._editorTestData : levels[this.currentLevelIndex];
 
     // Top bar
     ctx.fillStyle = 'rgba(0,0,0,0.7)';
@@ -715,7 +716,8 @@ export class Game {
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 13px Arial';
     ctx.textAlign = 'left';
-    ctx.fillText(`${world.icon} ${levelData.id}: ${levelData.name}`, 12, 28);
+    const label = levelData ? `${world.icon} ${levelData.id}: ${levelData.name}` : 'Test';
+    ctx.fillText(label, 12, 28);
 
     // Pet count
     if (this.level && this.level.pets.length > 1) {
@@ -767,6 +769,11 @@ export class Game {
       ctx.fillRect(tbX, 33, tbW * Math.min(1, progress), 5);
     }
 
+    // Editor test mode banner
+    if (this._editorTestMode) {
+      this._drawButton(10, 50, 90, 26, 'Editore Don', '#8E44AD', '#fff', 10);
+    }
+
     // Buttons
     if (this.state === STATE.DRAWING) {
       if (this.drawing.canUndo) {
@@ -796,6 +803,14 @@ export class Game {
   _setupGameButtons() {
     this._buttons = [];
 
+    // Return to editor button (always available in test mode)
+    if (this._editorTestMode) {
+      this._buttons.push({
+        x: 10, y: 50, w: 90, h: 26,
+        action: () => this._returnToEditor(),
+      });
+    }
+
     if (this.state === STATE.DRAWING) {
       const btnW = 140;
       const btnX = GAME_WIDTH / 2 - btnW / 2;
@@ -813,14 +828,14 @@ export class Game {
 
       this._buttons.push({
         x: GAME_WIDTH - 55, y: 50, w: 45, h: 30,
-        action: () => this._loadLevel(this.currentLevelIndex),
+        action: () => this._editorTestMode ? this._testEditorLevel(this._editorTestData) : this._loadLevel(this.currentLevelIndex),
       });
     }
 
     if (this.state === STATE.SIMULATING) {
       this._buttons.push({
         x: GAME_WIDTH - 55, y: 50, w: 45, h: 30,
-        action: () => this._loadLevel(this.currentLevelIndex),
+        action: () => this._editorTestMode ? this._testEditorLevel(this._editorTestData) : this._loadLevel(this.currentLevelIndex),
       });
     }
   }
@@ -857,10 +872,10 @@ export class Game {
     }
 
     // Level info
-    const levelData = levels[this.currentLevelIndex];
+    const levelData = this._editorTestMode ? this._editorTestData : levels[this.currentLevelIndex];
     ctx.fillStyle = '#7F8C8D';
     ctx.font = '14px Arial';
-    ctx.fillText(`${world.icon} ${levelData.id}: ${levelData.name}`, cx, 245);
+    ctx.fillText(levelData ? `${world.icon} ${levelData.id}: ${levelData.name}` : 'Test Bolumu', cx, 245);
 
     // Ink info
     ctx.fillStyle = '#95A5A6';
@@ -873,37 +888,46 @@ export class Game {
     }
 
     // Buttons
-    this._drawButton(cx - 135, 320, 125, 42, 'Tekrar', '#95A5A6', '#fff', 15);
-
-    const isLastLevel = this.currentLevelIndex >= levels.length - 1;
-    if (isLastLevel) {
-      this._drawButton(cx + 10, 320, 125, 42, 'Dunyalar', '#3498DB', '#fff', 15);
+    if (this._editorTestMode) {
+      this._drawButton(cx - 135, 320, 125, 42, 'Tekrar', '#95A5A6', '#fff', 15);
+      this._drawButton(cx + 10, 320, 125, 42, 'Editore Don', '#8E44AD', '#fff', 13);
+      this._buttons = [
+        { x: cx - 135, y: 320, w: 125, h: 42, action: () => this._testEditorLevel(this._editorTestData) },
+        { x: cx + 10, y: 320, w: 125, h: 42, action: () => this._returnToEditor() },
+      ];
     } else {
-      this._drawButton(cx + 10, 320, 125, 42, 'Sonraki', '#4CAF50', '#fff', 15);
-    }
+      this._drawButton(cx - 135, 320, 125, 42, 'Tekrar', '#95A5A6', '#fff', 15);
 
-    this._drawButton(cx - 60, 375, 120, 32, 'Bolumler', '#3498DB', '#fff', 12);
+      const isLastLevel = this.currentLevelIndex >= levels.length - 1;
+      if (isLastLevel) {
+        this._drawButton(cx + 10, 320, 125, 42, 'Dunyalar', '#3498DB', '#fff', 15);
+      } else {
+        this._drawButton(cx + 10, 320, 125, 42, 'Sonraki', '#4CAF50', '#fff', 15);
+      }
 
-    this._buttons = [
-      {
-        x: cx - 135, y: 320, w: 125, h: 42,
-        action: () => this._loadLevel(this.currentLevelIndex),
-      },
-      {
-        x: cx + 10, y: 320, w: 125, h: 42,
-        action: () => {
-          if (isLastLevel) {
-            this.state = STATE.WORLD_SELECT;
-          } else {
-            this._loadLevel(this.currentLevelIndex + 1);
-          }
+      this._drawButton(cx - 60, 375, 120, 32, 'Bolumler', '#3498DB', '#fff', 12);
+
+      this._buttons = [
+        {
+          x: cx - 135, y: 320, w: 125, h: 42,
+          action: () => this._loadLevel(this.currentLevelIndex),
         },
-      },
-      {
-        x: cx - 60, y: 375, w: 120, h: 32,
-        action: () => { this.state = STATE.LEVEL_SELECT; },
-      },
-    ];
+        {
+          x: cx + 10, y: 320, w: 125, h: 42,
+          action: () => {
+            if (isLastLevel) {
+              this.state = STATE.WORLD_SELECT;
+            } else {
+              this._loadLevel(this.currentLevelIndex + 1);
+            }
+          },
+        },
+        {
+          x: cx - 60, y: 375, w: 120, h: 32,
+          action: () => { this.state = STATE.LEVEL_SELECT; },
+        },
+      ];
+    }
   }
 
   _renderLoseOverlay() {
@@ -935,8 +959,8 @@ export class Game {
     }
 
     // Hint
-    const levelData = levels[this.currentLevelIndex];
-    if (levelData.hints && levelData.hints.length > 0) {
+    const levelData = this._editorTestMode ? this._editorTestData : levels[this.currentLevelIndex];
+    if (levelData && levelData.hints && levelData.hints.length > 0) {
       ctx.fillStyle = '#7F8C8D';
       ctx.font = '12px Arial';
       const hint = levelData.hints[0];
@@ -950,19 +974,28 @@ export class Game {
     }
 
     // Buttons
-    this._drawButton(cx - 75, 350, 150, 42, 'Tekrar Dene', '#E74C3C', '#fff', 15);
-    this._drawButton(cx - 55, 400, 110, 32, 'Bolumler', '#3498DB', '#fff', 12);
+    if (this._editorTestMode) {
+      this._drawButton(cx - 135, 350, 125, 42, 'Tekrar Dene', '#E74C3C', '#fff', 14);
+      this._drawButton(cx + 10, 350, 125, 42, 'Editore Don', '#8E44AD', '#fff', 13);
+      this._buttons = [
+        { x: cx - 135, y: 350, w: 125, h: 42, action: () => this._testEditorLevel(this._editorTestData) },
+        { x: cx + 10, y: 350, w: 125, h: 42, action: () => this._returnToEditor() },
+      ];
+    } else {
+      this._drawButton(cx - 75, 350, 150, 42, 'Tekrar Dene', '#E74C3C', '#fff', 15);
+      this._drawButton(cx - 55, 400, 110, 32, 'Bolumler', '#3498DB', '#fff', 12);
 
-    this._buttons = [
-      {
-        x: cx - 75, y: 350, w: 150, h: 42,
-        action: () => this._loadLevel(this.currentLevelIndex),
-      },
-      {
-        x: cx - 55, y: 400, w: 110, h: 32,
-        action: () => { this.state = STATE.LEVEL_SELECT; },
-      },
-    ];
+      this._buttons = [
+        {
+          x: cx - 75, y: 350, w: 150, h: 42,
+          action: () => this._loadLevel(this.currentLevelIndex),
+        },
+        {
+          x: cx - 55, y: 400, w: 110, h: 32,
+          action: () => { this.state = STATE.LEVEL_SELECT; },
+        },
+      ];
+    }
   }
 
   // ── GAME LOGIC ────────────────────────────────────
@@ -994,6 +1027,9 @@ export class Game {
     this.state = STATE.SIMULATING;
     this.surviveTimer = 0;
     this.level.startSpawners();
+
+    // Make drawn segments dynamic so they fall with gravity
+    this.drawing.makeSegmentsDynamic();
   }
 
   _win() {
@@ -1001,24 +1037,26 @@ export class Game {
     this.drawing.enabled = false;
 
     const levels = this._currentWorldLevels;
-    const data = levels[this.currentLevelIndex];
+    const data = this._editorTestMode ? this._editorTestData : levels[this.currentLevelIndex];
     this.stars = Scoring.calculate(this.drawing.usedInk, data.stars);
 
     for (const pet of this.level.pets) {
       if (pet.alive) pet.rescue();
     }
 
-    // Save progress
-    const wp = this._getWorldProgress(this.currentWorldIndex);
-    const idx = this.currentLevelIndex;
-    const prev = wp.stars[idx] || 0;
-    if (this.stars > prev) {
-      wp.stars[idx] = this.stars;
+    // Save progress (skip in editor test mode)
+    if (!this._editorTestMode) {
+      const wp = this._getWorldProgress(this.currentWorldIndex);
+      const idx = this.currentLevelIndex;
+      const prev = wp.stars[idx] || 0;
+      if (this.stars > prev) {
+        wp.stars[idx] = this.stars;
+      }
+      if (idx + 1 > (wp.unlockedLevel || 0)) {
+        wp.unlockedLevel = Math.min(idx + 1, levels.length - 1);
+      }
+      saveProgress(this.progress);
     }
-    if (idx + 1 > (wp.unlockedLevel || 0)) {
-      wp.unlockedLevel = Math.min(idx + 1, levels.length - 1);
-    }
-    saveProgress(this.progress);
   }
 
   _lose(reason = 'Bilinmeyen neden') {
@@ -1082,6 +1120,38 @@ export class Game {
     this.editor.deactivate();
     this.state = STATE.MENU;
     this._resize();
+  }
+
+  _returnToEditor() {
+    this._editorTestMode = false;
+    this._editorTestData = null;
+    if (this.level) { this.level.destroy(); this.level = null; }
+    this.physics.reset();
+    this.drawing.enabled = false;
+    this.state = STATE.EDITOR;
+    this.editor.activate();
+    this._resize();
+  }
+
+  _testEditorLevel(levelData) {
+    // Temporarily load the editor's level for playtesting
+    this._editorTestData = levelData;
+    this.editor.deactivate();
+    this.state = STATE.DRAWING;
+    this._resize();
+
+    if (this.level) this.level.destroy();
+    this.physics.reset();
+    this.level = new Level(this.physics, levelData);
+    this.drawing.reset(levelData.inkLimit);
+    this.drawing.enabled = true;
+    this.surviveTarget = levelData.surviveTime || 10;
+    this.surviveTimer = 0;
+    this.stars = 0;
+    this.loseReason = null;
+
+    // Override back/reset to return to editor
+    this._editorTestMode = true;
   }
 
   _editorLoadFromGame(worldIdx, levelIdx) {

@@ -157,9 +157,13 @@ const TYPE_TO_ARRAY_KEY = {
 const EDITOR_SAVE_KEY = 'geunius_editor_levels';
 
 export class LevelEditor {
-  constructor(canvas) {
+  constructor(canvas, gameLevels, worldMeta) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
+
+    // Game data reference for browsing existing levels
+    this.gameLevels = gameLevels || []; // ALL_WORLDS array
+    this.worldMeta = worldMeta || [];   // WORLDS metadata array
 
     // Level metadata
     this.levelMeta = {
@@ -269,6 +273,8 @@ export class LevelEditor {
         <div style="display:flex; gap:4px; flex-wrap:wrap;">
           <button onclick="window._editorToggleGrid()" style="${this._btnStyle('#546E7A')}">${this.showGrid ? 'Grid: ON' : 'Grid: OFF'}</button>
           <button onclick="window._editorToggleSnap()" style="${this._btnStyle('#546E7A')}">${this.snapToGrid ? 'Snap: ON' : 'Snap: OFF'}</button>
+          <button onclick="window._editorNew()" style="${this._btnStyle('#E67E22')}">Yeni Bolum</button>
+          <button onclick="window._editorTest()" style="${this._btnStyle('#27AE60')}">Test Et</button>
         </div>
       </div>
 
@@ -387,16 +393,27 @@ export class LevelEditor {
       <!-- Load from game levels -->
       <div style="padding:8px;">
         <div style="font-weight:bold; margin-bottom:6px; color:#1ABC9C;">Oyun Bolumlerinden Yukle</div>
-        <div style="display:flex; gap:4px;">
-          <select id="editor-game-world" style="${this._inputStyle()}; flex:1;">
-            <option value="0">Dunya 1</option>
-            <option value="1">Dunya 2</option>
-            <option value="2">Dunya 3</option>
-            <option value="3">Dunya 4</option>
-          </select>
-          <input id="editor-game-level" type="number" value="1" min="1" max="15" style="${this._inputStyle()}; width:50px;" placeholder="Bolum">
-          <button onclick="window._editorLoadFromGame()" style="${this._btnStyle('#1ABC9C')};">Yukle</button>
-        </div>
+        <select id="editor-game-level-select" style="${this._inputStyle()}; width:100%; margin-bottom:6px;">
+          <option value="">-- Bolum Sec --</option>
+    `;
+
+    // Build grouped level list from game data
+    for (let wi = 0; wi < this.gameLevels.length; wi++) {
+      const wm = this.worldMeta[wi];
+      const levels = this.gameLevels[wi];
+      if (!levels || levels.length === 0) continue;
+      const worldLabel = wm ? `${wm.icon} ${wm.name}` : `Dunya ${wi + 1}`;
+      html += `<optgroup label="${worldLabel}">`;
+      for (let li = 0; li < levels.length; li++) {
+        const lv = levels[li];
+        html += `<option value="${wi}_${li}">${lv.id}. ${lv.name}</option>`;
+      }
+      html += `</optgroup>`;
+    }
+
+    html += `
+        </select>
+        <button onclick="window._editorLoadFromGame()" style="${this._btnStyle('#1ABC9C')}; width:100%;">Secili Bolumu Yukle</button>
       </div>
     `;
 
@@ -415,6 +432,8 @@ export class LevelEditor {
   _registerCallbacks() {
     window._editorBack = () => { if (this.onBack) this.onBack(); };
     window._editorToggleGrid = () => { this.showGrid = !this.showGrid; this._updatePanel(); };
+    window._editorNew = () => { this._newLevel(); };
+    window._editorTest = () => { if (this.onTest) this.onTest(this._toLevelData()); };
     window._editorToggleSnap = () => { this.snapToGrid = !this.snapToGrid; this._updatePanel(); };
 
     window._editorMetaChange = (key, val) => { this.levelMeta[key] = val; };
@@ -484,11 +503,9 @@ export class LevelEditor {
     };
 
     window._editorLoadFromGame = () => {
-      const worldSelect = document.getElementById('editor-game-world');
-      const levelInput = document.getElementById('editor-game-level');
-      if (worldSelect && levelInput) {
-        const worldIdx = parseInt(worldSelect.value);
-        const levelIdx = parseInt(levelInput.value) - 1;
+      const select = document.getElementById('editor-game-level-select');
+      if (select && select.value) {
+        const [worldIdx, levelIdx] = select.value.split('_').map(Number);
         if (this.onLoadFromGame) {
           this.onLoadFromGame(worldIdx, levelIdx);
         }
@@ -503,6 +520,18 @@ export class LevelEditor {
     const el = { ...def.defaults, _type: type, _id: this._nextId++ };
     this.elements.push(el);
     this.selectedElement = el;
+    this._updatePanel();
+  }
+
+  _newLevel() {
+    this.levelMeta = {
+      id: 1, world: 1, name: 'Yeni Bolum', inkLimit: 500,
+      surviveTime: 10, hints: [''], stars: { one: 500, two: 300, three: 150 },
+    };
+    this.elements = [];
+    this._nextId = 1;
+    this.selectedElement = null;
+    this.currentSaveSlot = null;
     this._updatePanel();
   }
 
